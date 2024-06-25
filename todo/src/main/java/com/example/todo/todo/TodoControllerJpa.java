@@ -56,8 +56,6 @@ public class TodoControllerJpa {
         String username = getLoggedInUsername(model);
         todo.setUsername(username);
         todoRepository.save(todo);
-//		todoService.addTodo(username, todo.getDescription(),
-//				todo.getTargetDate(), todo.isDone());
         return "redirect:list-todo";
     }
 

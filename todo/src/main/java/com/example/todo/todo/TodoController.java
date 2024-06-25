@@ -40,7 +40,7 @@ public class TodoController {
     }
 
     @RequestMapping(value = "add-todo", method = RequestMethod.POST)
-    public String addToTodo( ModelMap model,@Valid Todo todo, BindingResult result) {
+    public String addToTodo( @Valid Todo todo, BindingResult result) {
         if(result.hasErrors()) {
             return "todo";
         }
@@ -66,8 +66,10 @@ public class TodoController {
             return "todo";
         }
 
-        todoService.updateTodo(todo);
+        System.out.println(todo.toString());
 
+        todoService.updateTodo(todo);
+        System.out.println("done");
         return "redirect:list-todo";
     }
 
