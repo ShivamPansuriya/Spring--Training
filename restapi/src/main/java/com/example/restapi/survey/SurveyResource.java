@@ -1,11 +1,15 @@
 package com.example.restapi.survey;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.beans.ConstructorProperties;
 import java.util.List;
 
 @RestController
@@ -13,14 +17,22 @@ public class SurveyResource {
 
     private final SurveyService surveyService;
 
-    public SurveyResource(SurveyService surveyService) {
+    private MessageSource messageSource;
+
+    public SurveyResource(SurveyService surveyService, MessageSource messageSource) {
         this.surveyService = surveyService;
+        this.messageSource = messageSource;
     }
 
     @RequestMapping("/surveys")
     public List<Survey> getAllSurveys() {
         return surveyService.getAllSurveys();
     }
+
+//    @RequestMapping("/surveys")
+//    public String getAllSsurveys() {
+//        return "hello";
+//    }
 
     @RequestMapping("/surveys/{surveyId}")
     public Survey getSurveyById(@PathVariable String surveyId) {
@@ -77,4 +89,13 @@ public class SurveyResource {
 
         return ResponseEntity.noContent().build();
     }
+
+    @RequestMapping(value = "/langage", method = RequestMethod.GET)
+    public String  internalization()
+    {
+        var locale = LocaleContextHolder.getLocale();
+
+        return messageSource.getMessage("good.morning.message",null, "Default Message", locale);
+    }
+
 }
