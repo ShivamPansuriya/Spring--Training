@@ -1,4 +1,4 @@
-package com.example.hibernate.repository;
+package com.example.hibernate.relationaltables.repository;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;

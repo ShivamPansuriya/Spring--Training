@@ -1,4 +1,4 @@
-package com.example.hibernate.entity;
+package com.example.hibernate.relationaltables.entity;
 
 import jakarta.persistence.*;
 

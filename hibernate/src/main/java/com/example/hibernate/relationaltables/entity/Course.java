@@ -1,4 +1,4 @@
-package com.example.hibernate.entity;
+package com.example.hibernate.relationaltables.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,6 +19,9 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<Review> reviews = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "courses")
+    private List<Student> students = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createTime;
@@ -52,6 +55,14 @@ public class Course {
 
     public void removeReview(Review review) {
         this.reviews.remove(review);
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void addStudents(Student students) {
+        this.students.add(students);
     }
 
     @Override

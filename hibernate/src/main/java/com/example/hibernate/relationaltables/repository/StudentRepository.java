@@ -1,7 +1,8 @@
-package com.example.hibernate.repository;
+package com.example.hibernate.relationaltables.repository;
 
-import com.example.hibernate.entity.Passport;
-import com.example.hibernate.entity.Student;
+import com.example.hibernate.relationaltables.entity.Course;
+import com.example.hibernate.relationaltables.entity.Passport;
+import com.example.hibernate.relationaltables.entity.Student;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -32,12 +33,26 @@ public class StudentRepository {
         return student;
     }
 
-    public void saveStudentWithPassport(){
-        var passport = new Passport("Z123456");
-        entityManager.persist(passport);
+//    public void saveStudentWithPassport(){
+//        var passport = new Passport("Z123456");
+//        entityManager.persist(passport);
+//
+//        var student = new Student("Shivam");
+//        student.setPassport(passport);
+//        entityManager.persist(student);
+//    }
 
-        var student = new Student("Shivam");
+    public void saveStudentWithPassport(Student student, Passport passport){
         student.setPassport(passport);
+        
+        entityManager.persist(student);
+    }
+
+    public void addStudentAndCourse(Student student, Course course) {
+
+        student.addCourses(course);
+        course.addStudents(student);
+
         entityManager.persist(student);
     }
 

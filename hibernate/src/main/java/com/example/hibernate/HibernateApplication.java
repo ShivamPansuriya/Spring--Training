@@ -1,8 +1,8 @@
 package com.example.hibernate;
 
-import com.example.hibernate.entity.Review;
-import com.example.hibernate.repository.CourseRepository;
-import com.example.hibernate.repository.StudentRepository;
+import com.example.hibernate.relationaltables.entity.Review;
+import com.example.hibernate.relationaltables.repository.CourseRepository;
+import com.example.hibernate.relationaltables.repository.StudentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

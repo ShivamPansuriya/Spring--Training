@@ -1,7 +1,7 @@
-package com.example.hibernate.repository;
+package com.example.hibernate.relationaltables.repository;
 
-import com.example.hibernate.entity.Course;
-import com.example.hibernate.entity.Review;
+import com.example.hibernate.relationaltables.entity.Course;
+import com.example.hibernate.relationaltables.entity.Review;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
