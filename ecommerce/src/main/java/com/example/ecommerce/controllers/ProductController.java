@@ -1,16 +1,12 @@
-package com.example.ecommerce.controller;
+package com.example.ecommerce.controllers;
 
-import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.paylods.ProductDTO;
 import com.example.ecommerce.paylods.ProductResponse;
 import com.example.ecommerce.service.ProductService;
-import jakarta.persistence.Access;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/")

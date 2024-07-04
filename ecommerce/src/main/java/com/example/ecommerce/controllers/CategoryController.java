@@ -1,4 +1,4 @@
-package com.example.ecommerce.controller;
+package com.example.ecommerce.controllers;
 
 import com.example.ecommerce.constants.Constants;
 import com.example.ecommerce.paylods.CategoryDTO;

@@ -1,7 +1,6 @@
 package com.example.ecommerce.service;
 
 
-import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.paylods.ProductDTO;
 import com.example.ecommerce.paylods.ProductResponse;
 
