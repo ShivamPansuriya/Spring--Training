@@ -4,6 +4,8 @@ import com.example.ecommerce.paylods.ProductDTO;
 import com.example.ecommerce.paylods.ProductResponse;
 import com.example.ecommerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ public class ProductController {
     }
 
     @GetMapping("/public/products")
+    @Cacheable(value = "product", key = "productId")
     public ResponseEntity<ProductResponse> getAllProducts()
     {
         var response = productService.getProducts();

@@ -1,5 +1,7 @@
 package com.example.hibernate.relationaltables.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@JsonIgnoreProperties(value = {"id"},ignoreUnknown = true) // To ignore any unknown properties in JSON input without exception
 public class Course {
     @Id
     @GeneratedValue
