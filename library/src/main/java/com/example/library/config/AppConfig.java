@@ -18,16 +18,15 @@ public class AppConfig {
     @Bean
     public Config hazelcastConfig()
     {
-        var config = new Config();
+        Config config = new Config();
         MapConfig mapConfig = new MapConfig();
-        mapConfig.setName("book")
+        mapConfig.setName("data")
                 .setEvictionConfig(new EvictionConfig()
                         .setEvictionPolicy(EvictionPolicy.LRU)
-                        .setMaxSizePolicy(MaxSizePolicy.FREE_HEAP_SIZE))
-                .setTimeToLiveSeconds(10); // 1800 seconds = 30 minutes
+                        .setMaxSizePolicy(MaxSizePolicy.PER_PARTITION))
+                .setTimeToLiveSeconds(60);
 
-        config.addMapConfig(mapConfig);
-
+        config.addMapConfig(mapConfig).setInstanceName("hazelcast-instance");
         return config;
     }
 }

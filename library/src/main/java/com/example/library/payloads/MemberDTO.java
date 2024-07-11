@@ -1,6 +1,7 @@
 package com.example.library.payloads;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,6 @@ public class MemberDTO {
     private String name;
 
     private String memberId;
+
+
 }

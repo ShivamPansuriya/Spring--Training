@@ -8,6 +8,7 @@ import com.example.library.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class BookServiceImpl implements BookService{
         return modelMapper.map(savedBook, BookDTO.class);
     }
 
-    @Transactional
+    @Transactional()
     public void test(){
         for(int i=0; i<10; ++i)
         {
@@ -52,6 +53,7 @@ public class BookServiceImpl implements BookService{
     }
 
     @Override
+    @Cacheable(value = "data", key = "#isbn")
     public BookDTO getBookByIsbn(String isbn) {
         var book = bookRepository.findBookByIsbnEquals(isbn);
         if(book.isEmpty())

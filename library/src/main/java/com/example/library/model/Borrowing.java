@@ -2,6 +2,7 @@ package com.example.library.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,8 +28,8 @@ public class Borrowing {
     @JoinColumn(name = "book_id", referencedColumnName = "id")
     private Book book;
 
-    @NotBlank
-    private Date borrowDate;
+    @NotNull
+    private Date borrowedDate;
 
     private Date returnDate;
 }

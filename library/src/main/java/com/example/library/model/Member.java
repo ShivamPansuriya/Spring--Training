@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.UniqueElements;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -24,4 +26,15 @@ public class Member {
 //    @UniqueElements
     @Column(unique = true)
     private String memberId;
+
+    @OneToMany(mappedBy = "member")
+    private List<Borrowing> borrowingList;
+
+
+    @ManyToMany()
+    @JoinTable(name = "member_book",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private List<Book> booksBorrowed;
 }

@@ -3,6 +3,7 @@ package com.example.library.controllers;
 import com.example.library.model.Member;
 import com.example.library.payloads.BookDTO;
 import com.example.library.payloads.MemberDTO;
+import com.example.library.repository.MemberJpaRepository;
 import com.example.library.service.BookService;
 import com.example.library.service.MemberService;
 import jakarta.validation.Valid;
@@ -43,5 +44,12 @@ public class MemberController {
     public ResponseEntity<MemberDTO> deleteMember(@PathVariable String memberId)
     {
         return new ResponseEntity<>(memberService.deleteMember(memberId),HttpStatus.OK);
+    }
+
+    @GetMapping("/admin/members/borrow/")
+    public ResponseEntity<List<MemberDTO>> borrowedMemberList(
+            @RequestParam(name = "value",defaultValue = "0", required = false) Long value)
+    {
+        return new ResponseEntity<>(memberService.memberBorrowingMoreThanTwo(value),HttpStatus.OK);
     }
 }

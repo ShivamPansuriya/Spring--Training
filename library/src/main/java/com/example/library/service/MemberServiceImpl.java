@@ -2,7 +2,9 @@ package com.example.library.service;
 
 import com.example.library.exceptions.ResourceNotFoundException;
 import com.example.library.model.Member;
+import com.example.library.payloads.BorrowingDTO;
 import com.example.library.payloads.MemberDTO;
+import com.example.library.repository.MemberJpaRepository;
 import com.example.library.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -21,6 +23,8 @@ public class MemberServiceImpl implements MemberService{
 
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private MemberJpaRepository memberJpaRepository;
 
     @Override
     public List<MemberDTO> getAllMembers() {
@@ -62,5 +66,21 @@ public class MemberServiceImpl implements MemberService{
         memberRepository.delete(member.get());
 
         return modelMapper.map(member.get(), MemberDTO.class);
+    }
+
+    public MemberDTO getMemberById(String memberId)
+    {
+        var member = memberRepository.findMemberByMemberId(memberId);
+
+        if(member.isEmpty())
+            throw new ResourceNotFoundException("Member","memberId",memberId);
+
+        return modelMapper.map(member.get(),MemberDTO.class);
+    }
+    public List<MemberDTO> memberBorrowingMoreThanTwo(Long value){
+        return memberJpaRepository
+                .memberBorrowingMoreThanTwo(value).stream()
+                .map(member -> modelMapper.map(member, MemberDTO.class))
+                .toList();
     }
 }

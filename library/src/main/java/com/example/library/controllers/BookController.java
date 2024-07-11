@@ -9,7 +9,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,11 +41,16 @@ public class BookController {
     }
 
     @GetMapping("/books/{isbn}")
-    @Cacheable(cacheNames = "book", key = "#isbn")
     @ResponseStatus(HttpStatus.OK)
     public BookDTO getBookByIsbn(@PathVariable String isbn)
     {
         var res = bookService.getBookByIsbn(isbn);
         return res;
+    }
+
+    @PostMapping("/books/upload")
+    public ResponseEntity<ApiResponse> addBook(@RequestParam("file")MultipartFile file) throws IOException {
+        file.transferTo(new File("/home/shivam/Spring/library/src/main/resources/static/"+ file.getOriginalFilename()));
+        return new ResponseEntity<>(new ApiResponse("save success",true),HttpStatus.CREATED);
     }
 }
