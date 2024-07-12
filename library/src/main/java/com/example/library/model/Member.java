@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.List;
@@ -37,4 +38,15 @@ public class Member {
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
     private List<Book> booksBorrowed;
+
+    public void addToBorrowedBook(Book book)
+    {
+        booksBorrowed.add(book);
+    }
+
+    public void removeFromBorrowedBook(Book book)
+    {
+        booksBorrowed.remove(book);
+    }
+
 }

@@ -5,7 +5,6 @@ import com.example.library.payloads.BookDTO;
 import com.example.library.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +17,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/")
 public class BookController {
+
+    private static final String DIRECTORY_PATH = "/home/shivam/Spring/library/src/main/resources/static/";
 
     @Autowired
     private BookService bookService;
@@ -44,13 +45,14 @@ public class BookController {
     @ResponseStatus(HttpStatus.OK)
     public BookDTO getBookByIsbn(@PathVariable String isbn)
     {
-        var res = bookService.getBookByIsbn(isbn);
-        return res;
+        return bookService.getBookByIsbn(isbn);
+
     }
 
     @PostMapping("/books/upload")
-    public ResponseEntity<ApiResponse> addBook(@RequestParam("file")MultipartFile file) throws IOException {
-        file.transferTo(new File("/home/shivam/Spring/library/src/main/resources/static/"+ file.getOriginalFilename()));
+    public ResponseEntity<ApiResponse> addBook(@RequestParam("file")MultipartFile file) throws IOException
+    {
+        file.transferTo(new File(DIRECTORY_PATH + file.getOriginalFilename()));
         return new ResponseEntity<>(new ApiResponse("save success",true),HttpStatus.CREATED);
     }
 }

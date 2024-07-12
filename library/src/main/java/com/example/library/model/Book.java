@@ -2,10 +2,8 @@ package com.example.library.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Value;
+import lombok.*;
+import org.hibernate.annotations.Check;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.validator.constraints.UniqueElements;
 
@@ -17,6 +15,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "book")
+@Check( constraints = "CASE WHEN isbn IS NOT NULL THEN LENGTH(isbn) = 13 ELSE true END") // this will throw error if isbn size is not 13
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +23,6 @@ public class Book {
 
     @NotBlank
     private String title;
-
-    private transient String title1;
 
     @NotBlank
     private String author;
@@ -41,4 +38,14 @@ public class Book {
 
     @ManyToMany(mappedBy = "booksBorrowed")
     private List<Member> borrowingMember;
+
+    public void addToBorrowingMember(Member member)
+    {
+        borrowingMember.add(member);
+    }
+
+    public void removeFromBorrowingMember(Member member)
+    {
+        borrowingMember.remove(member);
+    }
 }

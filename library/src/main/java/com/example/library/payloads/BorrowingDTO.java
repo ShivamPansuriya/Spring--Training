@@ -18,7 +18,6 @@ import java.util.Date;
 @Data
 public class BorrowingDTO {
 
-    @JsonIgnore
     private Long id;
 
     private Date borrowedDate;
