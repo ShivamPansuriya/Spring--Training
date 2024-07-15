@@ -1,8 +1,6 @@
 package com.example.library.repository;
 
-import com.example.library.model.Book;
-import com.example.library.model.Borrowing;
-import com.example.library.model.Member;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Join;
 import jakarta.transaction.Transactional;
