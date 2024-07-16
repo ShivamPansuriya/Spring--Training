@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class Vendor {
 
     // will delete products associated to vendor automatically
     @OneToMany(mappedBy = "vendor",cascade = CascadeType.REMOVE)
+    @ToString.Exclude
     private List<Product> products = new ArrayList<>();
 
     public void addProduct(Product product)

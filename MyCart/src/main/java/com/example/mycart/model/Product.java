@@ -28,7 +28,6 @@ public class Product {
     @Column(length = 1000)
     private String description;
 
-    @NotBlank
     @Column(nullable = false)
     private BigDecimal price;
 
@@ -43,7 +42,7 @@ public class Product {
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
     private Inventory inventory;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
 
     public void addReview(Review review)

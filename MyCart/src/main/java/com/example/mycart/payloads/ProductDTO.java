@@ -6,6 +6,7 @@ import com.example.mycart.model.Vendor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
@@ -16,6 +17,6 @@ public class ProductDTO {
     private String name;
     private String description;
     private BigDecimal price;
-    private Category category;
-    private Vendor vendor;
+    private CategoryDTO category;
+    private VendorDTO vendor;
 }

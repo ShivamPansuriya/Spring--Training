@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,11 @@ public class Category {
     @JoinColumn(name = "parent_category_id")
     private Category parentCategory;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "parentCategory")
     private List<Category> subCategories = new ArrayList<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "category")
     private List<Product> products = new ArrayList<>();
 

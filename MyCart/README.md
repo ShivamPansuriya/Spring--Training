@@ -131,3 +131,7 @@
 
 ### Vendor
 - **One-to-Many**: Product
+
+
+add inventory in product while creating inventory
+add product in category while adding product
