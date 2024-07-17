@@ -41,6 +41,18 @@ public class CategoryController {
         return ResponseEntity.ok(updatedCategory);
     }
 
+    @PostMapping("/{parentId}/{subId}")
+    public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long parentId, @PathVariable Long subId) {
+        var updatedCategory = categoryService.addSubCategory(subId,parentId);
+        return ResponseEntity.ok(updatedCategory);
+    }
+
+    @PutMapping("/subcategories/{subId}")
+    public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long subId) {
+        var updatedCategory = categoryService.removeSubCategory(subId);
+        return ResponseEntity.ok(updatedCategory);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);

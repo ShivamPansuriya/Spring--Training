@@ -47,4 +47,5 @@ public class GlobalExceptionHandler {
     {
         return new ResponseEntity<>(new ApiResponse(exception.getCause().getMessage(), false), HttpStatus.BAD_REQUEST);
     }
+//    org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "inventory_product_id_key"
 }

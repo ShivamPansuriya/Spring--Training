@@ -1,5 +1,7 @@
 package com.example.mycart.payloads;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO {
-    private long id;
+public class UserDTO {
+    private Long id;
     private String name;
-    private String description;
-    private Long parentCategoryId;
+    private String address;
+    private String email;
 }

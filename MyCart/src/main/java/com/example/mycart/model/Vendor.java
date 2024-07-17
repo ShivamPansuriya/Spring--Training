@@ -36,8 +36,7 @@ public class Vendor {
     @Column(length = 10)
     private String phone;
 
-    // will delete products associated to vendor automatically
-    @OneToMany(mappedBy = "vendor",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "vendor",cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Product> products = new ArrayList<>();
 

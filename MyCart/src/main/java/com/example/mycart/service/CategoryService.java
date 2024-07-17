@@ -13,4 +13,5 @@ public interface CategoryService
     CategoryDTO deleteCategory(Long id);
     List<CategoryDTO> getSubcategories(Long parentId);
     CategoryDTO addSubCategory(Long CategoryId, Long ParentId);
+    CategoryDTO removeSubCategory(Long id);
 }

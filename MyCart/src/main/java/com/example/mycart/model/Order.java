@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +32,10 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @NotBlank
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItems> orderItems = new ArrayList<>();
 

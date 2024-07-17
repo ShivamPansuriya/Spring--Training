@@ -26,11 +26,9 @@ public class OrderItems {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @NotBlank
     @Column(nullable = false)
     private int quantity;
 
-    @NotBlank
     @Column(nullable = false)
     private BigDecimal price;
 }

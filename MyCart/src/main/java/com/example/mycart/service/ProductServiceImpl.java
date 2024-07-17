@@ -10,6 +10,7 @@ import com.example.mycart.repository.VendorRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -60,6 +61,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product findByProductId(Long id)
+    {
+        return productRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Product","id",id));
+    }
+    @Override
     public ProductResponse getProductByCategory(Long categoryId) {
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
@@ -88,6 +95,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDTO deleteProduct(Long productId) {
         var product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));

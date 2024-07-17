@@ -1,15 +1,16 @@
 package com.example.mycart.payloads;
 
+import com.example.mycart.model.CartItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO {
-    private long id;
-    private String name;
-    private String description;
-    private Long parentCategoryId;
+public class CartDTO
+{
+    private List<CartItemDTO> cartItems;
 }

@@ -33,6 +33,16 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    public List<InventoryDTO> findLowStockInventories(int threshold, Long vendorId)
+    {
+        var inventories = inventoryRepository.findLowStockInventories(threshold, vendorId);
+
+        return inventories.stream()
+                .map(inventory -> mapper.map(inventory, InventoryDTO.class))
+                .toList();
+    }
+
+    @Override
     public InventoryDTO getInventoryById(Long id) {
         var inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory", "id" , id));

@@ -12,7 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Cart {
+public class Cart
+{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

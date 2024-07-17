@@ -1,22 +1,26 @@
 package com.example.mycart.payloads;
 
+import com.example.mycart.model.Order;
 import com.example.mycart.model.Product;
 import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class InventoryDTO
+@NoArgsConstructor
+public class OrderItemDTO
 {
-    private Long id;
+    private long id;
 
     private ProductDTO product;
 
     private int quantity;
+
+    private BigDecimal price;
 }

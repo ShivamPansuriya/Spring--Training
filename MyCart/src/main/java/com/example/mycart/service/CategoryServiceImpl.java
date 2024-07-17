@@ -1,5 +1,6 @@
 package com.example.mycart.service;
 
+import com.example.mycart.exception.ApiException;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
 import com.example.mycart.payloads.CategoryDTO;
@@ -49,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService
         var category = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
 
-        var parentCategory = repository.findById(categoryDTO.getParentCategory())
+        var parentCategory = repository.findById(categoryDTO.getParentCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
 
         category.setName(categoryDTO.getName());
@@ -66,7 +67,10 @@ public class CategoryServiceImpl implements CategoryService
     public CategoryDTO deleteCategory(Long id) {
         Category category = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
-
+        if(!category.getSubCategories().isEmpty())
+        {
+            throw new ApiException("first remove all sub categories from list and then delete");
+        }
         repository.delete(category);
 
         return mapCategory(category);
@@ -99,12 +103,31 @@ public class CategoryServiceImpl implements CategoryService
         return mapCategory(savedSubCategory);
     }
 
+    @Override
+    public CategoryDTO removeSubCategory(Long id) {
+        var subCategory = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sub-Category","id", id));
+
+        var parentCategory = subCategory.getParentCategory();
+
+        if(parentCategory == null)
+            throw new ApiException("sub category is already removed");
+
+        parentCategory.getSubCategories().remove(subCategory);
+
+        subCategory.setParentCategory(null);
+
+        var savedSubCategory = repository.save(subCategory);
+
+        return mapCategory(savedSubCategory);
+    }
+
     private CategoryDTO mapCategory(Category category)
     {
         var response = mapper.map(category,CategoryDTO.class);
         if(category.getParentCategory()!=null)
         {
-            response.setParentCategory(category.getParentCategory().getId());
+            response.setParentCategoryId(category.getParentCategory().getId());
         }
         return response;
     }

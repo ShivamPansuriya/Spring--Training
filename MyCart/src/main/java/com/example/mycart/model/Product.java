@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Product {
-
+public class Product
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -39,15 +40,20 @@ public class Product {
     @JoinColumn(name = "vendor_id")
     private Vendor vendor;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Inventory inventory;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
 
-    public void addReview(Review review)
-    {
-        reviews.add(review);
-    }
+    @ToString.Exclude
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<CartItem> cartItems = new ArrayList<>();
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<OrderItems> orderItems = new ArrayList<>();
 }
+
