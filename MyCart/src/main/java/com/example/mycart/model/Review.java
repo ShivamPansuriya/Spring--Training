@@ -3,16 +3,15 @@ package com.example.mycart.model;
 import com.example.mycart.utils.Ratings;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

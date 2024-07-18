@@ -2,14 +2,14 @@ package com.example.mycart.payloads;
 
 import com.example.mycart.model.Product;
 import jakarta.persistence.Column;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class InventoryDTO
@@ -18,5 +18,6 @@ public class InventoryDTO
 
     private ProductDTO product;
 
+    @NotNull
     private int quantity;
 }

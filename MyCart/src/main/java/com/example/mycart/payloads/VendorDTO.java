@@ -2,20 +2,31 @@ package com.example.mycart.payloads;
 
 import com.example.mycart.model.Category;
 import com.example.mycart.model.Vendor;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VendorDTO {
+public class VendorDTO
+{
     private long id;
+
+    @NotBlank
     private String name;
+
     private String description;
+
+    @NotBlank
+    @Email(message = "Please provide a valid email address")
     private String email;
+
+    @Size(max = 10,message = "phone number size cannot be more tha 10 digits")
     private String phone;
 }

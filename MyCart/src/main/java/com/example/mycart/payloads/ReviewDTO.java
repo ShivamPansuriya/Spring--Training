@@ -14,7 +14,11 @@ import java.time.LocalDateTime;
 public class ReviewDTO
 {
     private Long id;
+
     private Ratings ratings;
+
     private LocalDateTime reviewDate;
+
+    @NotBlank
     private String comment;
 }

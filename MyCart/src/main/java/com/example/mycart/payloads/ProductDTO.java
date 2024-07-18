@@ -3,22 +3,33 @@ package com.example.mycart.payloads;
 import com.example.mycart.model.Category;
 import com.example.mycart.model.Inventory;
 import com.example.mycart.model.Vendor;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO
 {
     private Long id;
+
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String description;
+
+    @NotNull
     private BigDecimal price;
+
     private CategoryDTO category;
+
     private VendorDTO vendor;
+
+    private List<ReviewDTO> reviews;
 }

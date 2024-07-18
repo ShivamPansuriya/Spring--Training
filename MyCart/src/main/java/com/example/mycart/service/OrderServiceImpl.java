@@ -7,11 +7,16 @@ import com.example.mycart.model.Order;
 import com.example.mycart.model.OrderItems;
 import com.example.mycart.payloads.OrderDTO;
 import com.example.mycart.payloads.OrderItemDTO;
+import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.repository.OrderItemsRepository;
 import com.example.mycart.repository.OrderRepository;
 import com.example.mycart.utils.OrderStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class OrderServiceImpl implements OrderService
 {
     @Autowired
@@ -39,6 +45,8 @@ public class OrderServiceImpl implements OrderService
 
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Override
     @Transactional
@@ -88,6 +96,7 @@ public class OrderServiceImpl implements OrderService
     }
 
     @Override
+    @Cacheable
     public OrderDTO getOrderById(Long orderId)
     {
         var order = findOrderById(orderId);
@@ -108,6 +117,7 @@ public class OrderServiceImpl implements OrderService
 
     @Override
     @Transactional
+    @CachePut
     public OrderDTO updateOrderStatus(Long orderId, OrderStatus status)
     {
         var order = findOrderById(orderId);
@@ -130,6 +140,7 @@ public class OrderServiceImpl implements OrderService
 
     @Override
     @Transactional
+    @CacheEvict
     public OrderDTO cancelOrder(Long orderId)
     {
         var order = findOrderById(orderId);
@@ -146,7 +157,8 @@ public class OrderServiceImpl implements OrderService
     }
 
     @Override
-    public OrderItemDTO removeOrderItem(Long orderId, Long productId)
+    @CachePut
+    public OrderDTO removeOrderItem(Long orderId, Long productId)
     {
         var order = findOrderById(orderId);
 
@@ -164,7 +176,15 @@ public class OrderServiceImpl implements OrderService
 
         orderItemsRepository.delete(orderItem);
 
-        return mapper.map(orderItem,OrderItemDTO.class);
+        return mapper.map(order,OrderDTO.class);
+    }
+
+    @Override
+    public List<OrderDTO> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate)
+    {
+        var orders = repository.findOrderBetweenDate(startDate,endDate);
+
+        return orders.stream().map(order -> mapper.map(order, OrderDTO.class)).toList();
     }
 
 

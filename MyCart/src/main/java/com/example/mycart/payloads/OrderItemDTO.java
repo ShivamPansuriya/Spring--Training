@@ -5,13 +5,13 @@ import com.example.mycart.model.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemDTO
@@ -20,6 +20,7 @@ public class OrderItemDTO
 
     private ProductDTO product;
 
+    @NotNull
     private int quantity;
 
     private BigDecimal price;

@@ -1,15 +1,20 @@
 package com.example.mycart.payloads;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDTO {
+public class CategoryDTO
+{
     private long id;
+
+    @NotBlank
     private String name;
+
     private String description;
+
     private Long parentCategoryId;
 }

@@ -7,12 +7,17 @@ import com.example.mycart.payloads.CategoryDTO;
 import com.example.mycart.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class CategoryServiceImpl implements CategoryService
 {
     @Autowired
@@ -22,7 +27,8 @@ public class CategoryServiceImpl implements CategoryService
     private ModelMapper mapper;
 
     @Override
-    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+    public CategoryDTO createCategory(CategoryDTO categoryDTO)
+    {
         var category = mapper.map(categoryDTO, Category.class);
 
         var savedCategory = repository.save(category);
@@ -30,10 +36,16 @@ public class CategoryServiceImpl implements CategoryService
         return mapCategory(savedCategory);
     }
 
-    @Override
-    public CategoryDTO getCategoryById(Long id) {
-        var category =  repository.findById(id)
+    public Category findCategoryById(Long id)
+    {
+        return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
+    }
+    @Override
+    @Cacheable
+    public CategoryDTO getCategoryById(Long id)
+    {
+        var category =  findCategoryById(id);
         return mapCategory(category);
     }
 
@@ -46,9 +58,10 @@ public class CategoryServiceImpl implements CategoryService
 
     @Override
     @Transactional
-    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
-        var category = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
+    @CachePut
+    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO)
+    {
+        var category = findCategoryById(id);
 
         var parentCategory = repository.findById(categoryDTO.getParentCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
@@ -64,9 +77,11 @@ public class CategoryServiceImpl implements CategoryService
 
     @Override
     @Transactional
-    public CategoryDTO deleteCategory(Long id) {
-        Category category = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
+    @CacheEvict
+    public CategoryDTO deleteCategory(Long id)
+    {
+        Category category = findCategoryById(id);
+
         if(!category.getSubCategories().isEmpty())
         {
             throw new ApiException("first remove all sub categories from list and then delete");
@@ -78,21 +93,20 @@ public class CategoryServiceImpl implements CategoryService
 
     @Override
     @Transactional
-    public List<CategoryDTO> getSubcategories(Long id) {
-        var category = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
+    public List<CategoryDTO> getSubcategories(Long id)
+    {
+        var category = findCategoryById(id);
 
         return category.getSubCategories().stream().map(this::mapCategory).toList();
     }
 
     @Override
     @Transactional
-    public CategoryDTO addSubCategory(Long categoryId, Long parentId) {
-        var parentCategory = repository.findById(parentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category","parentId", parentId));
+    public CategoryDTO addSubCategory(Long categoryId, Long parentId)
+    {
+        var parentCategory = findCategoryById(parentId);
 
-        var subCategory = repository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sub-Category","categoryId", categoryId));
+        var subCategory = findCategoryById(categoryId);
 
         subCategory.setParentCategory(parentCategory);
 
@@ -105,8 +119,7 @@ public class CategoryServiceImpl implements CategoryService
 
     @Override
     public CategoryDTO removeSubCategory(Long id) {
-        var subCategory = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sub-Category","id", id));
+        var subCategory = findCategoryById(id);
 
         var parentCategory = subCategory.getParentCategory();
 
@@ -125,6 +138,7 @@ public class CategoryServiceImpl implements CategoryService
     private CategoryDTO mapCategory(Category category)
     {
         var response = mapper.map(category,CategoryDTO.class);
+
         if(category.getParentCategory()!=null)
         {
             response.setParentCategoryId(category.getParentCategory().getId());

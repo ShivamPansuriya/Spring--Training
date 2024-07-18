@@ -8,10 +8,16 @@ import java.util.List;
 public interface InventoryService
 {
     List<InventoryDTO> inventories();
+
     List<InventoryDTO> findLowStockInventories(int threshold, Long vendorId);
+
     InventoryDTO getInventoryById(Long id);
+
     InventoryDTO createInventory(InventoryDTO inventory, Long productId);
+
     InventoryDTO deleteInventory(Long id);
+
     InventoryDTO updateInventory(Long id, InventoryDTO inventoryDetails);
+
     InventoryDTO getInventoryByProduct(Long productId);
 }

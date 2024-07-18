@@ -56,7 +56,7 @@ public class ReviewController
     public ResponseEntity<ReviewDTO> updateReview(@PathVariable Long id,
                                                   @RequestBody ReviewDTO review)
     {
-        var updatedReview = service.updateReview(review,id);
+        var updatedReview = service.updateReview(id,review);
 
         return new ResponseEntity<>(updatedReview, HttpStatus.OK);
     }

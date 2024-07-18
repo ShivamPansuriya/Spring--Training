@@ -7,15 +7,20 @@ import com.example.mycart.repository.InventoryRepository;
 import com.example.mycart.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class InventoryServiceImpl implements InventoryService {
+@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
+public class InventoryServiceImpl implements InventoryService
+{
     @Autowired
     private InventoryRepository inventoryRepository;
 
@@ -26,7 +31,8 @@ public class InventoryServiceImpl implements InventoryService {
     private ModelMapper mapper;
 
     @Override
-    public List<InventoryDTO> inventories() {
+    public List<InventoryDTO> inventories()
+    {
         var inventories = inventoryRepository.findAll();
 
         return inventories.stream().map(inventory-> mapper.map(inventory,InventoryDTO.class)).toList();
@@ -42,10 +48,18 @@ public class InventoryServiceImpl implements InventoryService {
                 .toList();
     }
 
-    @Override
-    public InventoryDTO getInventoryById(Long id) {
-        var inventory = inventoryRepository.findById(id)
+    public Inventory findInventoryById(Long id)
+    {
+        return inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory", "id" , id));
+    }
+
+    @Override
+    @Cacheable
+    public InventoryDTO getInventoryById(Long id)
+    {
+        var inventory = findInventoryById(id);
+
         return mapper.map(inventory,InventoryDTO.class);
     }
 
@@ -56,23 +70,28 @@ public class InventoryServiceImpl implements InventoryService {
         var product = productRepository.findById(productId)
                 .orElseThrow(()-> new ResourceNotFoundException("Product","id",productId));
 
-        var inventory = mapper.map(inventoryDTO,Inventory.class);
+        var existingInventory = inventoryRepository.findByProduct(product)
+                .orElseGet(()->{
+                    var inventory = mapper.map(inventoryDTO,Inventory.class);
 
-        inventory.setProduct(product);
+                    inventory.setProduct(product);
 
-        inventory.setLastUpdated(LocalDateTime.now());
+                    inventory.setLastUpdated(LocalDateTime.now());
 
-        product.setInventory(inventory);
+                    product.setInventory(inventory);
 
-        return mapper.map(inventoryRepository.save(inventory),InventoryDTO.class);
+                    return inventoryRepository.save(inventory);
+                });
+
+        return mapper.map(existingInventory,InventoryDTO.class);
     }
 
     @Override
     @Transactional
+    @CachePut
     public InventoryDTO updateInventory(Long id, InventoryDTO inventoryDetails)
     {
-        var inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory", "id" , id));
+        var inventory = findInventoryById(id);
 
         inventory.setQuantity(inventoryDetails.getQuantity());
 
@@ -83,9 +102,12 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public InventoryDTO deleteInventory(Long id) {
-        Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory", "id" , id));
+    @CacheEvict
+    public InventoryDTO deleteInventory(Long id)
+    {
+        Inventory inventory = findInventoryById(id);
+
+        inventory.getProduct().setInventory(null);
 
         inventoryRepository.delete(inventory);
 

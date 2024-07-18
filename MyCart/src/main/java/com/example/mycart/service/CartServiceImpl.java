@@ -7,15 +7,20 @@ import com.example.mycart.payloads.CartDTO;
 import com.example.mycart.payloads.CartItemDTO;
 import com.example.mycart.repository.CartItemRepository;
 import com.example.mycart.repository.CartRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
+@Slf4j
 public class CartServiceImpl implements CartService
 {
 
@@ -41,22 +46,30 @@ public class CartServiceImpl implements CartService
 
         return cartRepository.findByUser(user)
                 .orElseGet(() -> {
+                    log.debug("creating new cart");
+
                     Cart newCart = new Cart();
+
                     newCart.setUser(user);
+
                     user.setCart(newCart);
+
                     return cartRepository.save(newCart);
                 });
     }
 
     @Override
+    @Cacheable
     public CartDTO getCartByUser(Long userId)
     {
         var cart =  findCartByUser(userId);
+
         return mapper.map(cart,CartDTO.class);
     }
 
     @Override
     @Transactional
+    @CacheEvict
     public CartItemDTO addItemToCart(Long userId, Long productId, int quantity) {
         var cart = findCartByUser(userId);
 
@@ -95,7 +108,8 @@ public class CartServiceImpl implements CartService
 
     @Override
     @Transactional
-    public CartItemDTO updateCartItemQuantity(Long cartItemId, int quantity)
+    @CacheEvict
+    public CartItemDTO updateCartItemQuantity(Long userId, Long cartItemId, int quantity)
     {
         var cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem","id",cartItemId));
@@ -109,7 +123,8 @@ public class CartServiceImpl implements CartService
 
     @Override
     @Transactional
-    public CartItemDTO removeItemFromCart(Long cartItemId)
+    @CacheEvict
+    public CartItemDTO removeItemFromCart(Long userId,Long cartItemId)
     {
         var cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem","id",cartItemId));
@@ -123,6 +138,7 @@ public class CartServiceImpl implements CartService
 
     @Override
     @Transactional
+    @CacheEvict
     public CartDTO clearCart(Long userId)
     {
         var cart = findCartByUser(userId);

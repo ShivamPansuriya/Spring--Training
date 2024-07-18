@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,18 @@ public class GlobalExceptionHandler {
         errors.put(STATUS, false);
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String,Object>> exceptionHandler(Exception exception)
+    {
+        var errors = new HashMap<String,Object>();
+
+        errors.put(exception.getClass().getName(), exception.getMessage());
+
+        errors.put(STATUS, false);
+
+        return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

@@ -4,16 +4,25 @@ import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Product;
 import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.ProductResponse;
+import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.repository.CategoryRepository;
 import com.example.mycart.repository.ProductRepository;
 import com.example.mycart.repository.VendorRepository;
+import jakarta.persistence.Cacheable;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 @Service
-public class ProductServiceImpl implements ProductService {
+@Slf4j
+public class ProductServiceImpl implements ProductService
+{
 
     @Autowired
     private ProductRepository productRepository;
@@ -28,35 +37,41 @@ public class ProductServiceImpl implements ProductService {
     private ModelMapper modelMapper;
 
     @Override
-    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId, Long vendorId) {
+    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId, Long vendorId)
+    {
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         var vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor", "vendorId", vendorId));
 
-        var product = modelMapper.map(productDTO, Product.class);
+        var product = productRepository.findByNameAndCategoryAndVendor(productDTO.getName(),category,vendor)
+                .orElseGet(()->{
+                    log.info("creating new product");
 
-        product.setCategory(category);
+                    var newProduct = modelMapper.map(productDTO, Product.class);
 
-        product.setVendor(vendor);
+                    newProduct.setCategory(category);
 
-        category.addProducts(product);
+                    newProduct.setVendor(vendor);
 
-        vendor.addProduct(product);
+                    return productRepository.save(newProduct);
+                });
 
-        var savedProduct = productRepository.save(product);
-
-        return modelMapper.map(savedProduct, ProductDTO.class);
+        return modelMapper.map(product, ProductDTO.class);
     }
 
     @Override
-    public ProductResponse getProducts() {
+    public ProductResponse getProducts(Long dummy)
+    {
         var products = productRepository.findAll();
+
         var productDTOs = products.stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
 
         var productResponse = new ProductResponse();
+
         productResponse.setContent(productDTOs);
+
         return productResponse;
     }
 
@@ -66,8 +81,26 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Product","id",id));
     }
+
     @Override
-    public ProductResponse getProductByCategory(Long categoryId) {
+    public ProductResponse findProductsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice)
+    {
+        var products = productRepository.findByPriceBetween(minPrice,maxPrice);
+
+        var productDTOs = products.stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .toList();
+
+        var productResponse = new ProductResponse();
+
+        productResponse.setContent(productDTOs);
+
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse getProductByCategory(Long categoryId)
+    {
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
@@ -76,7 +109,9 @@ public class ProductServiceImpl implements ProductService {
         var productDTOs = products.stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
 
         var productResponse = new ProductResponse();
+
         productResponse.setContent(productDTOs);
+
         return productResponse;
     }
 
@@ -104,4 +139,35 @@ public class ProductServiceImpl implements ProductService {
 
         return modelMapper.map(product, ProductDTO.class);
     }
+
+    @Override
+    @Transactional
+    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
+        var product = findByProductId(productId);
+
+        product.setName(productDTO.getName());
+
+        product.setPrice(productDTO.getPrice());
+
+        product.setDescription(productDTO.getDescription());
+
+        var updatedProduct = productRepository.save(product);
+
+        return modelMapper.map(product,ProductDTO.class);
+    }
+
+    @Override
+    public List<TopSellingProductDTO> getTopSellingProducts(int limit)
+    {
+        var list = productRepository.findTopSellingProducts(limit);
+
+        return list.stream()
+                .map(row -> new TopSellingProductDTO(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        ((Number) row[2]).intValue(),
+                        ((Number) row[3]).doubleValue()))
+                .toList();
+    }
+
 }

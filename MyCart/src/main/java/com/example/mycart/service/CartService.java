@@ -10,8 +10,8 @@ import java.util.List;
 public interface CartService {
     CartDTO getCartByUser(Long userId);
     CartItemDTO addItemToCart(Long userId, Long productId, int quantity);
-    CartItemDTO updateCartItemQuantity(Long cartItemId, int quantity);
-    CartItemDTO removeItemFromCart(Long cartItemId);
+    CartItemDTO updateCartItemQuantity(Long userId,Long cartItemId, int quantity);
+    CartItemDTO removeItemFromCart(Long userId,Long cartItemId);
     CartDTO clearCart(Long userId);
     List<CartItem> getCartItems(Long userId);
     Cart findCartByUser(Long userId);
