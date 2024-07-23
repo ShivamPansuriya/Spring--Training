@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Category {
+public class Category implements BaseEntity<Category> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -40,8 +40,8 @@ public class Category {
         subCategories.add(category);
     }
 
-    public void addProducts(Product product)
-    {
-        products.add(product);
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 }

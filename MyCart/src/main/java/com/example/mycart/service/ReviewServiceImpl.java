@@ -7,9 +7,8 @@ import com.example.mycart.repository.ReviewRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +17,7 @@ import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
-public class ReviewServiceImpl implements ReviewService
+public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO, Long> implements ReviewService
 {
     @Autowired
     private ReviewRepository repository;
@@ -42,14 +41,14 @@ public class ReviewServiceImpl implements ReviewService
                 .toList();
     }
 
-    @Override
-    @Cacheable
-    public ReviewDTO getReviewsById(Long id)
-    {
-        var review = findReviewById(id);
-
-        return mapper.map(review,ReviewDTO.class);
-    }
+//    @Override
+//    @Cacheable
+//    public ReviewDTO getReviewsById(Long id)
+//    {
+//        var review = findReviewById(id);
+//
+//        return mapper.map(review,ReviewDTO.class);
+//    }
 
     @Override
     public List<ReviewDTO> getReviewsByUserId(Long userId)
@@ -69,8 +68,9 @@ public class ReviewServiceImpl implements ReviewService
 
     @Override
     @Transactional
-    public ReviewDTO createReview(ReviewDTO reviewDTO, Long userId, Long productId) {
+    public ReviewDTO create(ReviewDTO reviewDTO, Long userId, Long productId) {
         var review = mapper.map(reviewDTO, Review.class);
+
         review.setUser(userService.findUserById(userId));
 
         review.setProduct(productService.findByProductId(productId));
@@ -84,7 +84,7 @@ public class ReviewServiceImpl implements ReviewService
 
     @Override
     @CachePut
-    public ReviewDTO updateReview( Long id,ReviewDTO reviewDTO)
+    public ReviewDTO update( Long id,ReviewDTO reviewDTO)
     {
         var review = findReviewById(id);
         review.setReviewDate(LocalDateTime.now());
@@ -93,15 +93,15 @@ public class ReviewServiceImpl implements ReviewService
         var updatedReview = repository.save(review);
         return mapper.map(updatedReview,ReviewDTO.class);
     }
-
-    @Override
-    @CacheEvict
-    public ReviewDTO deleteReview(Long id)
-    {
-        var review = findReviewById(id);
-        repository.delete(review);
-        return mapper.map(review,ReviewDTO.class);
-    }
+//
+//    @Override
+//    @CacheEvict
+//    public ReviewDTO deleteReview(Long id)
+//    {
+//        var review = findReviewById(id);
+//        repository.delete(review);
+//        return mapper.map(review,ReviewDTO.class);
+//    }
 
     @Override
     public List<ReviewDTO> getLatestReviewsForProduct(Long productId, int limit)
@@ -111,5 +111,20 @@ public class ReviewServiceImpl implements ReviewService
         return reviews.stream()
                 .map(review -> mapper.map(review,ReviewDTO.class))
                 .toList();
+    }
+
+    @Override
+    protected JpaRepository<Review, Long> getRepository() {
+        return repository;
+    }
+
+    @Override
+    protected Class<Review> getEntityClass() {
+        return Review.class;
+    }
+
+    @Override
+    protected Class<ReviewDTO> getDtoClass() {
+        return ReviewDTO.class;
     }
 }

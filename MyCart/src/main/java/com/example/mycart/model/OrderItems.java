@@ -1,18 +1,16 @@
 package com.example.mycart.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class OrderItems {
+public class OrderItems  implements BaseEntity<OrderItems> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -30,5 +28,10 @@ public class OrderItems {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
 

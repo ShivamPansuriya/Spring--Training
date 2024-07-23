@@ -7,7 +7,8 @@ import com.example.mycart.payloads.CartItemDTO;
 
 import java.util.List;
 
-public interface CartService {
+public interface CartService
+{
     CartDTO getCartByUser(Long userId);
     CartItemDTO addItemToCart(Long userId, Long productId, int quantity);
     CartItemDTO updateCartItemQuantity(Long userId,Long cartItemId, int quantity);

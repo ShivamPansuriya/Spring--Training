@@ -1,18 +1,16 @@
 package com.example.mycart.service;
 
 import com.example.mycart.payloads.OrderDTO;
-import com.example.mycart.payloads.OrderItemDTO;
-import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.utils.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OrderService
+public interface OrderService extends GenericService<OrderDTO,Long>
 {
-    OrderDTO createOrder(Long userId);
+    OrderDTO create(Long userId);
 
-    OrderDTO getOrderById(Long orderId);
+//    OrderDTO getOrderById(Long orderId);
 
     List<OrderDTO> getOrdersByUser(Long userId);
 

@@ -3,6 +3,7 @@ package com.example.mycart.exception;
 
 import com.example.mycart.payloads.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,8 +18,9 @@ import java.util.Map;
 import static com.example.mycart.constants.Constants.STATUS;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
-
+@Slf4j
+public class GlobalExceptionHandler
+{
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String,Object>> constraintViolationExceptionHandler(ConstraintViolationException exception)
     {
@@ -36,9 +38,11 @@ public class GlobalExceptionHandler {
     {
         var errors = new HashMap<String,Object>();
 
-        errors.put(exception.getClass().getName(), exception.getMessage());
+        errors.put("message", "internal server error. try after some time");
 
         errors.put(STATUS, false);
+
+        log.error(exception.getMessage());
 
         return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -16,7 +16,8 @@ import java.util.Arrays;
 @Aspect
 @Component
 @Slf4j
-public class LoggingAspect {
+public class LoggingAspect
+{
 
     private final HttpServletRequest httpServletRequest;
 

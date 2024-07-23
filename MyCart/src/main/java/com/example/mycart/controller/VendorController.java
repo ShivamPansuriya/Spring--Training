@@ -2,6 +2,7 @@ package com.example.mycart.controller;
 
 import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.service.VendorService;
+import com.example.mycart.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
@@ -12,42 +13,20 @@ import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("/api/vendor/")
-public class VendorController {
-
+public class VendorController extends AbstractGenericController<VendorDTO,Long>
+{
     @Autowired
     VendorService service;
 
-    @GetMapping("/{vendorId}")
-    public ResponseEntity<VendorDTO> getVendor(@PathVariable Long vendorId)
-    {
-        var vendor = service.getVendorById(vendorId);
-
-        return new ResponseEntity<>(vendor, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/")
-    public ResponseEntity<VendorDTO> addVendor(@RequestBody VendorDTO vendorDTO)
-    {
-        var vendor = service.addVendor(vendorDTO);
-
-        return new ResponseEntity<>(vendor, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{VendorId}")
-    public ResponseEntity<VendorDTO> updateVendor(@RequestBody VendorDTO vendorDTO, @PathVariable Long VendorId)
-    {
-        var updatedVendor = service.updateVendor(VendorId,vendorDTO);
-
-        return new ResponseEntity<>(updatedVendor, HttpStatus.CREATED);
-    }
-
-    @DeleteMapping("/{VendorId}")
-    public ResponseEntity<VendorDTO> deleteVendor(@PathVariable Long VendorId)
-    {
-        var deletedVendor = service.deleteVendor(VendorId);
-
-        return new ResponseEntity<>(deletedVendor, HttpStatus.CREATED);
-    }
+//    @PutMapping("/{vendorId}")
+//    public ResponseEntity<VendorDTO> updateVendor(@RequestBody VendorDTO vendorDTO, @PathVariable Long vendorId)
+//    {
+////        vendorDTO.setId(vendorId);
+//
+//        var updatedVendor = service.update(vendorId,vendorDTO);
+//
+//        return new ResponseEntity<>(updatedVendor, HttpStatus.CREATED);
+//    }
 
     @Async("threadPoolTaskExecutor")
     @GetMapping("/{vendorId}/download")
@@ -66,4 +45,8 @@ public class VendorController {
                 .body(excelContent));
     }
 
+    @Override
+    protected GenericService<VendorDTO, Long> getService() {
+        return service;
+    }
 }

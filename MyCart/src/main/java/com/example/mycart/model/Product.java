@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Product
+public class Product implements BaseEntity<Product>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,5 +53,10 @@ public class Product
     @ToString.Exclude
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OrderItems> orderItems = new ArrayList<>();
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
 

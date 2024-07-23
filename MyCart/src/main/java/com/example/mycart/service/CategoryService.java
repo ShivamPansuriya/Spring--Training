@@ -4,17 +4,17 @@ import com.example.mycart.payloads.CategoryDTO;
 
 import java.util.List;
 
-public interface CategoryService
+public interface CategoryService extends GenericService<CategoryDTO,Long>
 {
-    CategoryDTO createCategory(CategoryDTO categoryDTO);
+//    CategoryDTO createCategory(CategoryDTO categoryDTO);
 
-    CategoryDTO getCategoryById(Long id);
+//    CategoryDTO getCategoryById(Long id);
 
-    List<CategoryDTO> categories();
+//    List<CategoryDTO> categories();
+//
+//    CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
 
-    CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
-
-    CategoryDTO deleteCategory(Long id);
+    CategoryDTO delete(Long id);
 
     List<CategoryDTO> getSubcategories(Long parentId);
 

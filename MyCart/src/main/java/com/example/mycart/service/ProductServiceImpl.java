@@ -8,11 +8,10 @@ import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.repository.CategoryRepository;
 import com.example.mycart.repository.ProductRepository;
 import com.example.mycart.repository.VendorRepository;
-import jakarta.persistence.Cacheable;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class ProductServiceImpl implements ProductService
+public class ProductServiceImpl extends AbstractGenericService<Product,ProductDTO, Long> implements ProductService
 {
 
     @Autowired
@@ -37,7 +36,7 @@ public class ProductServiceImpl implements ProductService
     private ModelMapper modelMapper;
 
     @Override
-    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId, Long vendorId)
+    public ProductDTO create(ProductDTO productDTO, Long categoryId, Long vendorId)
     {
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
@@ -61,19 +60,19 @@ public class ProductServiceImpl implements ProductService
         return modelMapper.map(product, ProductDTO.class);
     }
 
-    @Override
-    public ProductResponse getProducts(Long dummy)
-    {
-        var products = productRepository.findAll();
-
-        var productDTOs = products.stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
-
-        var productResponse = new ProductResponse();
-
-        productResponse.setContent(productDTOs);
-
-        return productResponse;
-    }
+//    @Override
+//    public ProductResponse getProducts(Long dummy)
+//    {
+//        var products = productRepository.findAll();
+//
+//        var productDTOs = products.stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
+//
+//        var productResponse = new ProductResponse();
+//
+//        productResponse.setContent(productDTOs);
+//
+//        return productResponse;
+//    }
 
     @Override
     public Product findByProductId(Long id)
@@ -129,20 +128,20 @@ public class ProductServiceImpl implements ProductService
         return productResponse;
     }
 
+//    @Override
+//    @Transactional
+//    public ProductDTO deleteProduct(Long productId) {
+//        var product = productRepository.findById(productId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+//
+//        productRepository.delete(product);
+//
+//        return modelMapper.map(product, ProductDTO.class);
+//    }
+//
     @Override
     @Transactional
-    public ProductDTO deleteProduct(Long productId) {
-        var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
-
-        productRepository.delete(product);
-
-        return modelMapper.map(product, ProductDTO.class);
-    }
-
-    @Override
-    @Transactional
-    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
+    public ProductDTO update(Long productId, ProductDTO productDTO) {
         var product = findByProductId(productId);
 
         product.setName(productDTO.getName());
@@ -170,4 +169,18 @@ public class ProductServiceImpl implements ProductService
                 .toList();
     }
 
+    @Override
+    protected JpaRepository<Product, Long> getRepository() {
+        return productRepository;
+    }
+
+    @Override
+    protected Class<Product> getEntityClass() {
+        return Product.class;
+    }
+
+    @Override
+    protected Class<ProductDTO> getDtoClass() {
+        return ProductDTO.class;
+    }
 }

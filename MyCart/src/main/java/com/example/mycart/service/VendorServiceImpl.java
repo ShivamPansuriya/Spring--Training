@@ -1,7 +1,6 @@
 package com.example.mycart.service;
 
 import com.example.mycart.exception.ApiException;
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Vendor;
 import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.repository.VendorRepository;
@@ -14,18 +13,13 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 
 @Service
-@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
-public class VendorServiceImpl implements VendorService
+public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,Long> implements VendorService
 {
 
     private final String[] COLUMN_HEADING = new String[]{"Product Name","Order Quantity","User Name","User Address","Remaining Quantity", "Total Earn", "Order Status"};
@@ -37,61 +31,61 @@ public class VendorServiceImpl implements VendorService
     @Autowired
     ModelMapper mapper;
 
-    @Override
-    @Cacheable
-    public VendorDTO getVendorById(Long vendorId)
-    {
-        var vendor = findVendorById(vendorId);
-
-        return mapper.map(vendor, VendorDTO.class);
-    }
-
-    @Override
-    public VendorDTO addVendor(VendorDTO vendorDTO)
-    {
-        var vendor = mapper.map(vendorDTO, Vendor.class);
-
-        var savedVendor = repository.save(vendor);
-
-        return mapper.map(savedVendor, VendorDTO.class);
-    }
-
-
-    public Vendor findVendorById(Long vendorId)
-    {
-        return repository.findById(vendorId)
-                .orElseThrow(()->new ResourceNotFoundException("Vendor","id",vendorId));
-    }
-
-    @Override
-    @CachePut
-    @Transactional
-    public VendorDTO updateVendor(Long vendorId,VendorDTO vendorDTO)
-    {
-        var vendor = findVendorById(vendorId);
-
-        vendor.setDescription(vendorDTO.getDescription());
-
-        vendor.setEmail(vendorDTO.getEmail());
-
-        vendor.setName(vendorDTO.getName());
-
-        vendor.setPhone(vendorDTO.getPhone());
-
-        return mapper.map(vendor, VendorDTO.class);
-    }
-
-    @Override
-    @CacheEvict
-    @Transactional
-    public VendorDTO deleteVendor(Long vendorId)
-    {
-        var vendor = findVendorById(vendorId);
-
-        repository.delete(vendor);
-
-        return mapper.map(vendor, VendorDTO.class);
-    }
+//    @Override
+//    @Cacheable
+//    public VendorDTO getVendorById(Long vendorId)
+//    {
+//        var vendor = findVendorById(vendorId);
+//
+//        return mapper.map(vendor, VendorDTO.class);
+//    }
+//
+//    @Override
+//    public VendorDTO addVendor(VendorDTO vendorDTO)
+//    {
+//        var vendor = mapper.map(vendorDTO, Vendor.class);
+//
+//        var savedVendor = repository.save(vendor);
+//
+//        return mapper.map(savedVendor, VendorDTO.class);
+//    }
+//
+//
+//    public Vendor findVendorById(Long vendorId)
+//    {
+//        return repository.findById(vendorId)
+//                .orElseThrow(()->new ResourceNotFoundException("Vendor","id",vendorId));
+//    }
+//
+//    @Override
+//    @CachePut
+//    @Transactional
+//    public VendorDTO updateVendor(Long vendorId,VendorDTO vendorDTO)
+//    {
+//        var vendor = findVendorById(vendorId);
+//
+//        vendor.setDescription(vendorDTO.getDescription());
+//
+//        vendor.setEmail(vendorDTO.getEmail());
+//
+//        vendor.setName(vendorDTO.getName());
+//
+//        vendor.setPhone(vendorDTO.getPhone());
+//
+//        return mapper.map(vendor, VendorDTO.class);
+//    }
+//
+//    @Override
+//    @CacheEvict
+//    @Transactional
+//    public VendorDTO deleteVendor(Long vendorId)
+//    {
+//        var vendor = findVendorById(vendorId);
+//
+//        repository.delete(vendor);
+//
+//        return mapper.map(vendor, VendorDTO.class);
+//    }
 
     public byte[] generateAnalysis(Long vendorId)
     {
@@ -133,5 +127,20 @@ public class VendorServiceImpl implements VendorService
             log.error(e.getMessage());
             throw new ApiException("Unable to generate response");
         }
+    }
+
+    @Override
+    protected JpaRepository<Vendor, Long> getRepository() {
+        return repository;
+    }
+
+    @Override
+    protected Class<Vendor> getEntityClass() {
+        return Vendor.class;
+    }
+
+    @Override
+    protected Class<VendorDTO> getDtoClass() {
+        return VendorDTO.class;
     }
 }

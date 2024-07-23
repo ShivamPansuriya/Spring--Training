@@ -56,6 +56,8 @@ public class AppConfig {
 
         executor.setQueueCapacity(500);
 
+        executor.setKeepAliveSeconds(60);
+
         executor.initialize();
 
         return executor;

@@ -129,9 +129,7 @@ public class CartServiceImpl implements CartService
         var cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem","id",cartItemId));
 
-        cartItem.getCart().getCartItems().remove(cartItem);
-
-        cartItem.getProduct().getCartItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
 
         return mapper.map(cartItem,CartItemDTO.class);
     }

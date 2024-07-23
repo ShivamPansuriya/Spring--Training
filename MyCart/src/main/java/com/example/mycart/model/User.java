@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "users")
-public class User{
+public class User implements BaseEntity<User> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +41,11 @@ public class User{
     @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
 
 /*

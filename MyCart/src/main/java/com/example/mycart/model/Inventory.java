@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Inventory {
+public class Inventory implements BaseEntity<Inventory> {
     @Id
     @GeneratedValue
     private long id;
@@ -24,4 +24,9 @@ public class Inventory {
 
     @UpdateTimestamp
     private LocalDateTime lastUpdated;
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

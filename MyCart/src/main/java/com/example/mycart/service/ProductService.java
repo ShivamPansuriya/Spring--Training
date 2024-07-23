@@ -9,19 +9,19 @@ import com.example.mycart.payloads.TopSellingProductDTO;
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface ProductService
+public interface ProductService extends GenericService<ProductDTO,Long>
 {
-    ProductDTO addProduct(ProductDTO productDTO, Long categoryId, Long vendorId);
+    ProductDTO create(ProductDTO productDTO, Long categoryId, Long vendorId);
 
-    ProductResponse getProducts(Long dummy);
+//    ProductResponse getProducts(Long dummy);
 
     ProductResponse getProductByCategory(Long categoryId);
 
     ProductResponse getProductByKeyword(String keyword);
 
-    ProductDTO deleteProduct(Long productId);
-
-    ProductDTO updateProduct(Long productId, ProductDTO productDTO);
+//    ProductDTO deleteProduct(Long productId);
+//
+//    ProductDTO updateProduct(Long productId, ProductDTO productDTO);
 
     Product findByProductId(Long id);
 

@@ -6,8 +6,6 @@ import com.example.mycart.model.CartItem;
 import com.example.mycart.model.Order;
 import com.example.mycart.model.OrderItems;
 import com.example.mycart.payloads.OrderDTO;
-import com.example.mycart.payloads.OrderItemDTO;
-import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.repository.OrderItemsRepository;
 import com.example.mycart.repository.OrderRepository;
 import com.example.mycart.utils.OrderStatus;
@@ -16,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +24,7 @@ import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
-public class OrderServiceImpl implements OrderService
+public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Long> implements OrderService
 {
     @Autowired
     private OrderRepository repository;
@@ -50,7 +48,7 @@ public class OrderServiceImpl implements OrderService
 
     @Override
     @Transactional
-    public OrderDTO createOrder(Long userId)
+    public OrderDTO create(Long userId)
     {
         var user = userService.findUserById(userId);
 
@@ -95,14 +93,14 @@ public class OrderServiceImpl implements OrderService
                 .orElseThrow(() -> new ResourceNotFoundException("Order","id",orderId));
     }
 
-    @Override
-    @Cacheable
-    public OrderDTO getOrderById(Long orderId)
-    {
-        var order = findOrderById(orderId);
-
-        return mapper.map(order, OrderDTO.class);
-    }
+//    @Override
+//    @Cacheable
+//    public OrderDTO getOrderById(Long orderId)
+//    {
+//        var order = findOrderById(orderId);
+//
+//        return mapper.map(order, OrderDTO.class);
+//    }
 
     @Override
     @Transactional
@@ -202,5 +200,20 @@ public class OrderServiceImpl implements OrderService
         return orderItems.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    protected JpaRepository<Order, Long> getRepository() {
+        return repository;
+    }
+
+    @Override
+    protected Class<Order> getEntityClass() {
+        return Order.class;
+    }
+
+    @Override
+    protected Class<OrderDTO> getDtoClass() {
+        return OrderDTO.class;
     }
 }

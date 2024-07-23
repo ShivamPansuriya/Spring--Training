@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +18,7 @@ import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
-public class CategoryServiceImpl implements CategoryService
+public class CategoryServiceImpl extends AbstractGenericService<Category,CategoryDTO,Long> implements CategoryService
 {
     @Autowired
     private CategoryRepository repository;
@@ -26,40 +26,41 @@ public class CategoryServiceImpl implements CategoryService
     @Autowired
     private ModelMapper mapper;
 
-    @Override
-    public CategoryDTO createCategory(CategoryDTO categoryDTO)
-    {
-        var category = mapper.map(categoryDTO, Category.class);
-
-        var savedCategory = repository.save(category);
-
-        return mapCategory(savedCategory);
-    }
+//    @Override
+//    public CategoryDTO createCategory(CategoryDTO categoryDTO)
+//    {
+//        var category = mapper.map(categoryDTO, Category.class);
+//
+//        var savedCategory = repository.save(category);
+//
+//        return mapCategory(savedCategory);
+//    }
 
     public Category findCategoryById(Long id)
     {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
     }
-    @Override
-    @Cacheable
-    public CategoryDTO getCategoryById(Long id)
-    {
-        var category =  findCategoryById(id);
-        return mapCategory(category);
-    }
 
-    @Override
-    public List<CategoryDTO> categories() {
-        var categories = repository.findAll();
+//    @Override
+//    @Cacheable
+//    public CategoryDTO getCategoryById(Long id)
+//    {
+//        var category =  findCategoryById(id);
+//        return mapCategory(category);
+//    }
 
-        return categories.stream().map(this::mapCategory).toList();
-    }
+//    @Override
+//    public List<CategoryDTO> categories() {
+//        var categories = repository.findAll();
+//
+//        return categories.stream().map(this::mapCategory).toList();
+//    }
 
     @Override
     @Transactional
     @CachePut
-    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO)
+    public CategoryDTO update(Long id, CategoryDTO categoryDTO)
     {
         var category = findCategoryById(id);
 
@@ -78,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService
     @Override
     @Transactional
     @CacheEvict
-    public CategoryDTO deleteCategory(Long id)
+    public CategoryDTO delete(Long id)
     {
         Category category = findCategoryById(id);
 
@@ -92,7 +93,7 @@ public class CategoryServiceImpl implements CategoryService
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CategoryDTO> getSubcategories(Long id)
     {
         var category = findCategoryById(id);
@@ -144,5 +145,20 @@ public class CategoryServiceImpl implements CategoryService
             response.setParentCategoryId(category.getParentCategory().getId());
         }
         return response;
+    }
+
+    @Override
+    protected JpaRepository<Category, Long> getRepository() {
+        return repository;
+    }
+
+    @Override
+    protected Class<Category> getEntityClass() {
+        return Category.class;
+    }
+
+    @Override
+    protected Class<CategoryDTO> getDtoClass() {
+        return CategoryDTO.class;
     }
 }

@@ -24,7 +24,7 @@ public class OrderController
     @PostMapping("/user/{userId}")
     public ResponseEntity<OrderDTO> createOrder(@PathVariable Long userId)
     {
-        var order = service.createOrder(userId);
+        var order = service.create(userId);
 
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
@@ -32,7 +32,7 @@ public class OrderController
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDTO> getOrder(@PathVariable Long orderId)
     {
-        var order = service.getOrderById(orderId);
+        var order = service.findById(orderId);
 
         return new ResponseEntity<>(order,HttpStatus.OK);
     }
@@ -56,7 +56,7 @@ public class OrderController
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<OrderDTO> cancleOrder(@PathVariable Long orderId)
+    public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long orderId)
     {
         var cancelledOrder = service.cancelOrder(orderId);
 

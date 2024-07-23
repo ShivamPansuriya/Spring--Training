@@ -4,11 +4,10 @@ import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.ProductResponse;
 import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.service.ProductService;
+import com.example.mycart.service.GenericService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/products/")
 @Slf4j
-public class ProductController
+public class ProductController extends AbstractGenericController<ProductDTO,Long>
 {
 
     @Autowired
@@ -30,20 +29,18 @@ public class ProductController
     @PostMapping("/categories/{categoryId}/vendors/{vendorId}")
     public ResponseEntity<ProductDTO> createProduct(@PathVariable Long categoryId, @PathVariable Long vendorId,@RequestBody ProductDTO productDTO)
     {
-        var response = service.addProduct(productDTO, categoryId,vendorId);
+        var response = service.create(productDTO, categoryId,vendorId);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<ProductResponse> getAllProducts()
-    {
-
-
-        var response = service.getProducts(0L);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @GetMapping
+//    public ResponseEntity<ProductResponse> getAllProducts()
+//    {
+//        var response = service.findAll();
+//
+//        return new ResponseEntity<>(new ProductResponse(response), HttpStatus.OK);
+//    }
 
     @GetMapping("/categories/{categoryId}")
     public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId)
@@ -59,20 +56,21 @@ public class ProductController
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId, @RequestBody ProductDTO productDTO)
-    {
-        var response = service.updateProduct(productId, productDTO);
+//    @PutMapping("/{productId}")
+//    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId, @RequestBody ProductDTO productDTO)
+//    {
+//        productDTO.setId(productId);
+//        var response = service.update(productId, productDTO);
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId)
-    {
-        var response = service.deleteProduct(productId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @DeleteMapping("/{productId}")
+//    public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId)
+//    {
+//        var response = service.delete(productId);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     @GetMapping("/price-range")
     public ResponseEntity<ProductResponse> getProductsByPriceRange(
@@ -90,5 +88,10 @@ public class ProductController
         var topProducts = service.getTopSellingProducts(limit);
 
         return new ResponseEntity<>(topProducts, HttpStatus.OK);
+    }
+
+    @Override
+    protected GenericService<ProductDTO, Long> getService() {
+        return service;
     }
 }

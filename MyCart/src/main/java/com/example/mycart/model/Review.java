@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Review {
+public class Review implements BaseEntity<Review> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -36,4 +36,9 @@ public class Review {
     @NotBlank
     @Column(length = 500)
     private String comment;
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

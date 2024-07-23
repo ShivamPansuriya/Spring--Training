@@ -8,7 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CartItem {
+public class CartItem
+{
     @Id
     @GeneratedValue
     private long id;

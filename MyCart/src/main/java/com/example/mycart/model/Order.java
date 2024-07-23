@@ -2,7 +2,6 @@ package com.example.mycart.model;
 
 import com.example.mycart.utils.OrderStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "orders")
-public class Order {
+public class Order implements BaseEntity<Order> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -37,9 +36,9 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItems> orderItems = new ArrayList<>();
 
-    public void addOrderItems(OrderItems orderItem)
-    {
-        orderItems.add(orderItem);
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 }
 

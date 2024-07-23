@@ -2,6 +2,7 @@ package com.example.mycart.controller;
 
 import com.example.mycart.payloads.ReviewDTO;
 import com.example.mycart.service.ReviewService;
+import com.example.mycart.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +14,18 @@ import static com.example.mycart.constants.Constants.REVIEW_LIMIT;
 
 @RestController
 @RequestMapping("/api/reviews")
-public class ReviewController
+public class ReviewController extends AbstractGenericController<ReviewDTO,Long>
 {
     @Autowired
     private ReviewService service;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable Long id)
-    {
-        var reviews = service.getReviewsById(id);
-
-        return new ResponseEntity<>(reviews, HttpStatus.OK);
-    }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable Long id)
+//    {
+//        var reviews = service.findById(id);
+//
+//        return new ResponseEntity<>(reviews, HttpStatus.OK);
+//    }
 
     @GetMapping("/product/{productId}")
     public ResponseEntity<List<ReviewDTO>> getReviewsByProductId(@PathVariable Long productId)
@@ -47,27 +48,28 @@ public class ReviewController
                                                   @PathVariable Long productId,
                                                   @PathVariable Long userId)
     {
-        var createdReview = service.createReview(review,userId,productId);
+        var createdReview = service.create(review,userId,productId);
 
         return new ResponseEntity<>(createdReview, HttpStatus.CREATED);
     }
+//
+//    @PutMapping("/{id}")
+//    public ResponseEntity<ReviewDTO> updateReview(@PathVariable Long id,
+//                                                  @RequestBody ReviewDTO review)
+//    {
+//        review.setId(id);
+//        var updatedReview = service.update(id,review);
+//
+//        return new ResponseEntity<>(updatedReview, HttpStatus.OK);
+//    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ReviewDTO> updateReview(@PathVariable Long id,
-                                                  @RequestBody ReviewDTO review)
-    {
-        var updatedReview = service.updateReview(id,review);
-
-        return new ResponseEntity<>(updatedReview, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ReviewDTO> deleteReview(@PathVariable Long id)
-    {
-        var review = service.deleteReview(id);
-
-        return new ResponseEntity<>(review, HttpStatus.OK);
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<ReviewDTO> deleteReview(@PathVariable Long id)
+//    {
+//        var review = service.delete(id);
+//
+//        return new ResponseEntity<>(review, HttpStatus.OK);
+//    }
 
     @GetMapping("/product/{productId}/latest")
     public ResponseEntity<List<ReviewDTO>> getLatestReviewsForProduct(
@@ -79,4 +81,8 @@ public class ReviewController
         return new ResponseEntity<>(latestReviews, HttpStatus.OK);
     }
 
+    @Override
+    protected GenericService<ReviewDTO, Long> getService() {
+        return service;
+    }
 }

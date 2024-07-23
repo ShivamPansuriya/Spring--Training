@@ -3,7 +3,6 @@ package com.example.mycart.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Vendor {
+public class Vendor implements BaseEntity<Vendor> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -37,8 +36,8 @@ public class Vendor {
     @ToString.Exclude
     private List<Product> products = new ArrayList<>();
 
-    public void addProduct(Product product)
-    {
-        products.add(product);
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 }
