@@ -1,6 +1,32 @@
 package com.example.mycart.model;
 
-public interface BaseEntity<T>
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+@MappedSuperclass
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public abstract class BaseEntity<ID extends Serializable>
 {
-    void setId(Long id);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected ID id;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    protected LocalDateTime createdTime;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    protected LocalDateTime updatedTime;
 }

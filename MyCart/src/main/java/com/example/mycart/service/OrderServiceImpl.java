@@ -5,15 +5,18 @@ import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.CartItem;
 import com.example.mycart.model.Order;
 import com.example.mycart.model.OrderItems;
-import com.example.mycart.payloads.OrderDTO;
+import com.example.mycart.payloads.inheritDTO.OrderDTO;
 import com.example.mycart.repository.OrderItemsRepository;
 import com.example.mycart.repository.OrderRepository;
+import com.example.mycart.utils.GenericSpecification;
 import com.example.mycart.utils.OrderStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,9 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     private ProductService productService;
 
     @Autowired
+    private InventoryService inventoryService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -48,14 +54,14 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
     @Override
     @Transactional
-    public OrderDTO create(Long userId)
+    public Order create(Long userId)
     {
         var user = userService.findUserById(userId);
 
         var cartItems = cartService.getCartItems(userId);
 
         var validProducts = cartItems.stream()
-                .filter(cartItem -> (cartItem.getProduct().getInventory().getQuantity() - cartItem.getQuantity())>0)
+                .filter(cartItem -> (inventoryService.findById(productService.findByProductId(cartItem.getProductId()).getInventoryId()).getQuantity() - cartItem.getQuantity())>0)
                 .toList();
 
         if (validProducts.isEmpty()) {
@@ -64,7 +70,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
         var order = new Order();
 
-        order.setUser(user);
+        order.setUserId(user.getId());
 
         order.setOrderDate(LocalDateTime.now());
 
@@ -74,17 +80,17 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
                 .map(cartItem -> createOrderItem(order, cartItem))
                 .toList();
 
-        order.setOrderItems(orderItems);
+//        order.setOrderItems(orderItems);
 
         order.setTotalAmount(calculateTotalAmount(orderItems));
 
-        user.getOrders().add(order);
+        var savedOrder = repository.save(order);
 
-        Order savedOrder = repository.save(order);
+        user.getOrders().add(savedOrder.getId());
 
         cartService.clearCart(userId);
 
-        return mapper.map(savedOrder, OrderDTO.class);
+        return savedOrder;
     }
 
     public Order findOrderById(Long orderId)
@@ -104,42 +110,45 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
     @Override
     @Transactional
-    public List<OrderDTO> getOrdersByUser(Long userId)
+    public List<Order> getOrdersByUser(Long userId)
     {
         var user = userService.findUserById(userId);
 
-        var orders = repository.findByUserOrderByOrderDateDesc(user);
+        return repository.findByUserIdOrderByOrderDateDesc(user.getId());
 
-        return orders.stream().map(order -> mapper.map(order, OrderDTO.class)).toList();
     }
 
     @Override
     @Transactional
     @CachePut
-    public OrderDTO updateOrderStatus(Long orderId, OrderStatus status)
+    public Order updateOrderStatus(Long orderId, OrderStatus status)
     {
         var order = findOrderById(orderId);
 
         if(order.getStatus().ordinal() < OrderStatus.SHIPPED.ordinal() && status.ordinal() >= OrderStatus.SHIPPED.ordinal())
         {
-            order.getOrderItems().forEach(orderItem ->
+            order.getOrderItemsId().forEach(orderItemId ->
             {
-                var inventory = orderItem.getProduct().getInventory();
+                var orderItem = orderItemsRepository.findById(orderItemId).orElseThrow(()->new ResourceNotFoundException("orderItem","id",orderItemId));
+
+                var inventoryId = productService.findByProductId(orderItem.getProductId()).getInventoryId();
+
+                var inventory = inventoryService.findById(inventoryId);
+
                 inventory.setQuantity(inventory.getQuantity() - orderItem.getQuantity());
             });
         }
 
         order.setStatus(status);
 
-        var updatedOder =  repository.save(order);
+        return repository.save(order);
 
-        return mapper.map(updatedOder, OrderDTO.class);
     }
 
     @Override
     @Transactional
     @CacheEvict
-    public OrderDTO cancelOrder(Long orderId)
+    public Order cancelOrder(Long orderId)
     {
         var order = findOrderById(orderId);
 
@@ -149,14 +158,13 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
         order.setStatus(OrderStatus.CANCELLED);
 
-        var updatedOrder = repository.save(order);
+        return repository.save(order);
 
-        return mapper.map(updatedOrder, OrderDTO.class);
     }
 
     @Override
     @CachePut
-    public OrderDTO removeOrderItem(Long orderId, Long productId)
+    public Order removeOrderItem(Long orderId, Long productId)
     {
         var order = findOrderById(orderId);
 
@@ -167,32 +175,40 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
         var product = productService.findByProductId(productId);
 
-        var orderItem = orderItemsRepository.findByOrderAndProduct(order,product)
+        var orderItem = orderItemsRepository.findByOrderIdAndProductId(order.getId(),product.getId())
                 .orElseThrow(()-> new ResourceNotFoundException("OrderItem", "id", productId));
 
-        order.getOrderItems().remove(orderItem);
+        order.getOrderItemsId().remove(orderItem.getId());
 
         orderItemsRepository.delete(orderItem);
 
-        return mapper.map(order,OrderDTO.class);
+        return order;
     }
 
     @Override
-    public List<OrderDTO> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate)
+    public List<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate)
     {
-        var orders = repository.findOrderBetweenDate(startDate,endDate);
-
-        return orders.stream().map(order -> mapper.map(order, OrderDTO.class)).toList();
+        return repository.findOrderBetweenDate(startDate,endDate);
     }
+
+    @Override
+    public Page<OrderItems> findOrderItemsByOrder(Long orderId, int pageNo) {
+        return orderItemsRepository.findOrderItemsByOrderId(orderId,PageRequest.of(pageNo,10));
+    }
+
+//    @Override
+//    public Page<Order> findOrderByUser(Long userId, int pageNo) {
+//        return repository.findAll(GenericSpecification.getList("userId",userId), PageRequest.of(pageNo,10));
+//    }
 
 
     private OrderItems createOrderItem(Order order, CartItem cartItem)
     {
         OrderItems orderItem = new OrderItems();
-        orderItem.setOrder(order);
-        orderItem.setProduct(cartItem.getProduct());
+        orderItem.setOrderId(order.getId());
+        orderItem.setProductId(cartItem.getProductId());
         orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setPrice(cartItem.getProduct().getPrice());
+        orderItem.setPrice(productService.findByProductId(cartItem.getProductId()).getPrice());
         return orderItem;
     }
 
@@ -216,4 +232,5 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     protected Class<OrderDTO> getDtoClass() {
         return OrderDTO.class;
     }
+
 }

@@ -11,11 +11,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order,Long>
+public interface OrderRepository extends BaseRepository<Order,Long>
 {
-    List<Order> findByUserOrderByOrderDateDesc(User user);
+    List<Order> findByUserIdOrderByOrderDateDesc(Long userId);
 
     @Query(value = "SELECT o FROM Order o WHERE o.orderDate BETWEEN :startDate AND :endDate ORDER BY o.orderDate DESC")
     List<Order> findOrderBetweenDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-
 }

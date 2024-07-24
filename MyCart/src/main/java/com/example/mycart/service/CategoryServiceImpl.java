@@ -3,13 +3,15 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
-import com.example.mycart.payloads.CategoryDTO;
+import com.example.mycart.payloads.inheritDTO.CategoryDTO;
 import com.example.mycart.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +62,7 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     @Override
     @Transactional
     @CachePut
-    public CategoryDTO update(Long id, CategoryDTO categoryDTO)
+    public Category update(Long id, CategoryDTO categoryDTO)
     {
         var category = findCategoryById(id);
 
@@ -71,80 +73,59 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
 
         category.setDescription(categoryDTO.getDescription());
 
-        category.setParentCategory(parentCategory);
+        category.setParentCategoryId(parentCategory.getId());
 
-        return categoryDTO;
+        return category;
     }
 
     @Override
     @Transactional
     @CacheEvict
-    public CategoryDTO delete(Long id)
+    public Category delete(Long id)
     {
         Category category = findCategoryById(id);
 
-        if(!category.getSubCategories().isEmpty())
+        if(!category.getSubCategoriesId().isEmpty())
         {
             throw new ApiException("first remove all sub categories from list and then delete");
         }
         repository.delete(category);
 
-        return mapCategory(category);
+        return category;
     }
+
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryDTO> getSubcategories(Long id)
+    public Page<Category> getSubcategories(Long id, int pageNo)
     {
-        var category = findCategoryById(id);
-
-        return category.getSubCategories().stream().map(this::mapCategory).toList();
+        return repository.findCategoriesByParentCategoryIdEquals(id, PageRequest.of(pageNo,10));
     }
 
     @Override
     @Transactional
-    public CategoryDTO addSubCategory(Long categoryId, Long parentId)
+    public Category addSubCategory(Long categoryId, Long parentId)
     {
         var parentCategory = findCategoryById(parentId);
 
         var subCategory = findCategoryById(categoryId);
 
-        subCategory.setParentCategory(parentCategory);
+        subCategory.setParentCategoryId(parentId);
 
         parentCategory.addSubCategories(subCategory);
 
         var savedSubCategory = repository.save(subCategory);
 
-        return mapCategory(savedSubCategory);
+        return savedSubCategory;
     }
 
     @Override
-    public CategoryDTO removeSubCategory(Long id) {
+    public Category removeSubCategory(Long id) {
         var subCategory = findCategoryById(id);
 
-        var parentCategory = subCategory.getParentCategory();
+        repository.delete(subCategory);
 
-        if(parentCategory == null)
-            throw new ApiException("sub category is already removed");
-
-        parentCategory.getSubCategories().remove(subCategory);
-
-        subCategory.setParentCategory(null);
-
-        var savedSubCategory = repository.save(subCategory);
-
-        return mapCategory(savedSubCategory);
-    }
-
-    private CategoryDTO mapCategory(Category category)
-    {
-        var response = mapper.map(category,CategoryDTO.class);
-
-        if(category.getParentCategory()!=null)
-        {
-            response.setParentCategoryId(category.getParentCategory().getId());
-        }
-        return response;
+        return subCategory;
     }
 
     @Override
@@ -161,4 +142,6 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     protected Class<CategoryDTO> getDtoClass() {
         return CategoryDTO.class;
     }
+
+
 }

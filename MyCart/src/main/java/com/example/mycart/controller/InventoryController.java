@@ -1,6 +1,7 @@
 package com.example.mycart.controller;
 
-import com.example.mycart.payloads.InventoryDTO;
+import com.example.mycart.model.Inventory;
+import com.example.mycart.payloads.inheritDTO.InventoryDTO;
 import com.example.mycart.service.InventoryService;
 import com.example.mycart.service.GenericService;
 import jakarta.websocket.server.PathParam;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventories")
-public class InventoryController extends AbstractGenericController<InventoryDTO,Long>
+public class InventoryController extends AbstractGenericController<Inventory,InventoryDTO,Long>
 {
 
     @Autowired
@@ -35,15 +36,15 @@ public class InventoryController extends AbstractGenericController<InventoryDTO,
     @GetMapping("/products/{productId}")
     public ResponseEntity<InventoryDTO> getInventoryByProduct(@PathVariable Long productId) {
         var inventory = service.getInventoryByProduct(productId);
-        return new ResponseEntity<>(inventory, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.map(inventory,0), HttpStatus.OK);
     }
 
     @GetMapping("/vendor/{vendorId}/")
     public ResponseEntity<List<InventoryDTO>> getLowStockInventories(@PathVariable Long vendorId, @PathParam("threshold") int threshold)
     {
-        var inventory = service.findLowStockInventories(threshold, vendorId);
+        var inventories = service.findLowStockInventories(threshold, vendorId);
 
-        return new ResponseEntity<>(inventory, HttpStatus.OK);
+        return new ResponseEntity<>(inventories.stream().map(inventory->mapper.map(inventory,0)).toList(), HttpStatus.OK);
     }
 
     @PostMapping("/products/{productId}")
@@ -51,25 +52,11 @@ public class InventoryController extends AbstractGenericController<InventoryDTO,
     {
         var createdInventory = service.createInventory(inventory, productId);
 
-        return new ResponseEntity<>(createdInventory, HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.map(createdInventory,0), HttpStatus.CREATED);
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<InventoryDTO> updateInventory(@PathVariable Long id, @RequestBody InventoryDTO inventoryDTO)
-//    {
-//        inventoryDTO.setId(id);
-//        var updatedInventory = service.update(id, inventoryDTO);
-//        return new ResponseEntity<>(updatedInventory, HttpStatus.OK);
-//    }
-
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<InventoryDTO> deleteInventory(@PathVariable Long id) {
-//        var deletedInventory = service.delete(id);
-//        return new ResponseEntity<>(deletedInventory,HttpStatus.OK);
-//    }
-
     @Override
-    protected GenericService<InventoryDTO, Long> getService() {
+    protected GenericService<Inventory,InventoryDTO, Long> getService() {
         return service;
     }
 }

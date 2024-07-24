@@ -2,7 +2,7 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Inventory;
-import com.example.mycart.payloads.InventoryDTO;
+import com.example.mycart.payloads.inheritDTO.InventoryDTO;
 import com.example.mycart.repository.InventoryRepository;
 import com.example.mycart.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -39,13 +39,10 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
 //    }
 
     @Override
-    public List<InventoryDTO> findLowStockInventories(int threshold, Long vendorId)
+    public List<Inventory> findLowStockInventories(int threshold, Long vendorId)
     {
-        var inventories = inventoryRepository.findLowStockInventories(threshold, vendorId);
+        return inventoryRepository.findLowStockInventories(threshold, vendorId);
 
-        return inventories.stream()
-                .map(inventory -> mapper.map(inventory, InventoryDTO.class))
-                .toList();
     }
 
     public Inventory findInventoryById(Long id)
@@ -65,65 +62,66 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
 
     @Override
     @Transactional
-    public InventoryDTO createInventory(InventoryDTO inventoryDTO, Long productId)
+    public Inventory createInventory(InventoryDTO inventoryDTO, Long productId)
     {
         var product = productRepository.findById(productId)
                 .orElseThrow(()-> new ResourceNotFoundException("Product","id",productId));
 
-        var existingInventory = inventoryRepository.findByProduct(product)
+        return inventoryRepository.findByProductId(product.getId())
                 .orElseGet(()->{
                     var inventory = mapper.map(inventoryDTO,Inventory.class);
 
-                    inventory.setProduct(product);
+                    inventory.setProductId(product.getId());
 
-                    inventory.setLastUpdated(LocalDateTime.now());
+                    inventory.setUpdatedTime(LocalDateTime.now());
 
-                    product.setInventory(inventory);
+                    var savedInventory = inventoryRepository.save(inventory);
 
-                    return inventoryRepository.save(inventory);
+                    product.setInventoryId(savedInventory.getId());
+
+                    return savedInventory;
                 });
 
-        return mapper.map(existingInventory,InventoryDTO.class);
     }
 
     @Override
     @Transactional
     @CachePut
-    public InventoryDTO update(Long id, InventoryDTO inventoryDetails)
+    public Inventory update(Long id, InventoryDTO inventoryDetails)
     {
         var inventory = findInventoryById(id);
 
         inventory.setQuantity(inventoryDetails.getQuantity());
 
-        inventory.setLastUpdated(LocalDateTime.now());
+        inventory.setUpdatedTime(LocalDateTime.now());
 
-        return mapper.map(inventoryRepository.save(inventory),InventoryDTO.class);
+        return inventoryRepository.save(inventory);
     }
 
     @Override
     @Transactional
     @CacheEvict
-    public InventoryDTO delete(Long id)
+    public Inventory delete(Long id)
     {
         Inventory inventory = findInventoryById(id);
 
-        inventory.getProduct().setInventory(null);
+//        inventory.getProduct().setInventory(null);
 
         inventoryRepository.delete(inventory);
 
-        return mapper.map(inventory,InventoryDTO.class);
+        return inventory;
     }
 
+
     @Override
-    public InventoryDTO getInventoryByProduct(Long productId)
+    public Inventory getInventoryByProduct(Long productId)
     {
         var product = productRepository.findById(productId)
                 .orElseThrow(()-> new ResourceNotFoundException("Product","id",productId));
 
-        var inventory = inventoryRepository.findByProduct(product)
+        return inventoryRepository.findByProductId(product.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory for product " , "id",productId));
 
-        return mapper.map(inventory,InventoryDTO.class);
     }
 
     @Override

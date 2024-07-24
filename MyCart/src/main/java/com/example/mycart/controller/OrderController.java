@@ -1,9 +1,11 @@
 package com.example.mycart.controller;
 
-import com.example.mycart.payloads.OrderDTO;
-import com.example.mycart.payloads.OrderItemDTO;
+import com.example.mycart.model.Order;
+import com.example.mycart.payloads.inheritDTO.OrderDTO;
+import com.example.mycart.payloads.inheritDTO.OrderItemDTO;
 import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.service.OrderService;
+import com.example.mycart.utils.EntityMapper;
 import com.example.mycart.utils.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,16 +23,19 @@ public class OrderController
     @Autowired
     private OrderService service;
 
+    @Autowired
+    private EntityMapper<Order,OrderDTO> orderMapper;
+
     @PostMapping("/user/{userId}")
     public ResponseEntity<OrderDTO> createOrder(@PathVariable Long userId)
     {
         var order = service.create(userId);
 
-        return new ResponseEntity<>(order, HttpStatus.CREATED);
+        return new ResponseEntity<>(orderMapper.map(order,0), HttpStatus.CREATED);
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderDTO> getOrder(@PathVariable Long orderId)
+    public ResponseEntity<Order> getOrder(@PathVariable Long orderId)
     {
         var order = service.findById(orderId);
 
@@ -42,7 +47,7 @@ public class OrderController
     {
         var orders = service.getOrdersByUser(userId);
 
-        return new ResponseEntity<>(orders,HttpStatus.OK);
+        return new ResponseEntity<>(orders.stream().map(order -> orderMapper.map(order,0)).toList(),HttpStatus.OK);
     }
 
     @PutMapping("/{orderId}/status/{value}")
@@ -52,7 +57,7 @@ public class OrderController
     {
         var updatedOrder = service.updateOrderStatus(orderId, value);
 
-        return new ResponseEntity<>(updatedOrder,HttpStatus.OK);
+        return new ResponseEntity<>(orderMapper.map(updatedOrder,0),HttpStatus.OK);
     }
 
     @DeleteMapping("/{orderId}")
@@ -60,7 +65,7 @@ public class OrderController
     {
         var cancelledOrder = service.cancelOrder(orderId);
 
-        return new ResponseEntity<>(cancelledOrder,HttpStatus.OK);
+        return new ResponseEntity<>(orderMapper.map(cancelledOrder,0),HttpStatus.OK);
     }
 
     @DeleteMapping("/{orderId}/product/{productId}")
@@ -68,7 +73,7 @@ public class OrderController
     {
         var cancelledOrder = service.removeOrderItem(orderId,productId);
 
-        return new ResponseEntity<>(cancelledOrder,HttpStatus.OK);
+        return new ResponseEntity<>(orderMapper.map(cancelledOrder,0),HttpStatus.OK);
     }
 
     @GetMapping("/by-date-range")
@@ -78,6 +83,6 @@ public class OrderController
     {
         var orders = service.findOrdersByDateRange(startDate, endDate);
 
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+        return new ResponseEntity<>(orders.stream().map(order -> orderMapper.map(order,0)).toList(), HttpStatus.OK);
     }
 }

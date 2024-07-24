@@ -1,5 +1,6 @@
 package com.example.mycart.payloads;
 
+import com.example.mycart.payloads.inheritDTO.ProductDTO;
 import lombok.*;
 
 import java.util.List;

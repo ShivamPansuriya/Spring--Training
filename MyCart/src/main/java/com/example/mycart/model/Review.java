@@ -8,24 +8,18 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class Review implements BaseEntity<Review> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+@NoArgsConstructor
+@AllArgsConstructor
+public class Review extends BaseEntity<Long>
+{
+    @Column(nullable = false)
+    private Long userId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(nullable = false)
+    private Long productId;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    @NotBlank
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Ratings ratings;
@@ -33,12 +27,6 @@ public class Review implements BaseEntity<Review> {
     @Column(nullable = false)
     private LocalDateTime reviewDate;
 
-    @NotBlank
     @Column(length = 500)
     private String comment;
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

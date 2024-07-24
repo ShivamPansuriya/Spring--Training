@@ -1,9 +1,9 @@
 package com.example.mycart.service;
 
 import com.example.mycart.model.User;
-import com.example.mycart.payloads.UserDTO;
+import com.example.mycart.payloads.inheritDTO.UserDTO;
 
-public interface UserService extends GenericService<UserDTO,Long>
+public interface UserService extends GenericService<User,UserDTO,Long>
 {
 //    List<UserDTO> getAllUsers();
 //
@@ -15,7 +15,7 @@ public interface UserService extends GenericService<UserDTO,Long>
 //
 //    UserDTO deleteUser(Long id);
 
-    UserDTO getUserByName(String name);
+    User getUserByName(String name);
 
     User findUserById(Long id);
 }

@@ -1,24 +1,19 @@
-package com.example.mycart.payloads;
+package com.example.mycart.payloads.inheritDTO;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO
+public abstract class PersonDTO extends NamedDTO
 {
-    private Long id;
-
-    @NotBlank
-    private String name;
-
-    @NotBlank
     private String address;
 
-    @NotBlank
     @Email(message = "Please provide a valid email address")
     private String email;
 }

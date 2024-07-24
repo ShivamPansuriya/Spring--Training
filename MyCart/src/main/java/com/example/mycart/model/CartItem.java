@@ -4,25 +4,18 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class CartItem
+@NoArgsConstructor
+@AllArgsConstructor
+public class CartItem extends BaseEntity<Long>
 {
-    @Id
-    @GeneratedValue
-    private long id;
-
-    @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(nullable = false)
+    protected int quantity;
 
     @Column(nullable = false)
-    private int quantity;
+    private Long productId;
 
+    @Column(nullable = false)
+    private Long cartId;
 }

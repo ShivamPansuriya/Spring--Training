@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface InventoryRepository extends JpaRepository<Inventory,Long>
+public interface InventoryRepository extends BaseRepository<Inventory,Long>
 {
-    Optional<Inventory> findByProduct(Product product);
+    Optional<Inventory> findByProductId(Long productId);
 
-    @Query(value = "SELECT i FROM Inventory i WHERE i.quantity < :threshold AND i.product.vendor.id = :vendorId")
+    @Query(value = "SELECT i FROM Inventory i join Product p On p.inventoryId = i.id WHERE i.quantity < :threshold AND p.vendorId = :vendorId")
     List<Inventory> findLowStockInventories(@Param("threshold") int threshold, @Param("vendorId") Long vendorId);
 }

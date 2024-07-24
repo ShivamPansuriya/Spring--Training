@@ -8,44 +8,27 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
-public class User implements BaseEntity<User> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank
-    private String name;
-
-    @NotBlank
+public class User extends NamedEntity
+{
     private String address;
 
-    @NotBlank
     @Email(message = "Please provide a valid email address")
     private String email;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Order> orders = new ArrayList<>();
+    private Long cartId;
 
-    @ToString.Exclude
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Cart cart;
+    @Transient
+    private List<Long> orders = new ArrayList<>();
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Review> reviews = new ArrayList<>();
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Transient
+    private List<Long> reviewsId = new ArrayList<>();
 }
 
 /*

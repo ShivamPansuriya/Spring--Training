@@ -1,9 +1,10 @@
 package com.example.mycart.service;
 
-import com.example.mycart.payloads.VendorDTO;
+import com.example.mycart.model.Vendor;
+import com.example.mycart.payloads.inheritDTO.VendorDTO;
 
 
-public interface VendorService extends GenericService<VendorDTO,Long>
+public interface VendorService extends GenericService<Vendor,VendorDTO,Long>
 {
 //    VendorDTO getVendorById(Long vendorId);
 //

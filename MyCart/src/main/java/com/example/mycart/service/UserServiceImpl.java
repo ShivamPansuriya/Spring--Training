@@ -2,7 +2,7 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.User;
-import com.example.mycart.payloads.UserDTO;
+import com.example.mycart.payloads.inheritDTO.UserDTO;
 import com.example.mycart.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,12 +86,10 @@ public class UserServiceImpl extends AbstractGenericService<User, UserDTO, Long>
     }
 
     @Override
-    public UserDTO getUserByName(String name)
+    public User getUserByName(String name)
     {
-        var user = repository.findByName(name)
+        return repository.findByName(name)
                 .orElseThrow(()-> new ResourceNotFoundException("User","name",name));
-
-        return mapper.map(user, UserDTO.class);
     }
 
     @Override

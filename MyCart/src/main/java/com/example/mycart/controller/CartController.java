@@ -1,8 +1,11 @@
 package com.example.mycart.controller;
 
-import com.example.mycart.payloads.CartDTO;
-import com.example.mycart.payloads.CartItemDTO;
+import com.example.mycart.model.Cart;
+import com.example.mycart.model.CartItem;
+import com.example.mycart.payloads.inheritDTO.CartDTO;
+import com.example.mycart.payloads.inheritDTO.CartItemDTO;
 import com.example.mycart.service.CartService;
+import com.example.mycart.utils.EntityMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +20,20 @@ public class CartController
 {
     @Autowired
     private CartService service;
+
     @Autowired
-    private HttpServletRequest httpServletRequest;
+    private EntityMapper<Cart,CartDTO> cartMapper;
+
+    @Autowired
+    private EntityMapper<CartItem,CartItemDTO> cartItemMapper;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<CartDTO> getCart(@PathVariable Long userId)
     {
-        var cartItems = service.getCartByUser(userId);
+        var cartItems = service.findCartByUser(userId);
 
-        return new ResponseEntity<>(cartItems, HttpStatus.OK);
+
+        return new ResponseEntity<>(cartMapper.map(cartItems,10), HttpStatus.OK);
     }
 
     @PostMapping("/user/{userId}/product/{productId}/items")
@@ -36,7 +44,7 @@ public class CartController
     {
         var cartItem = service.addItemToCart(userId, productId, cartItemDTO.getQuantity());
 
-        return new ResponseEntity<>(cartItem,HttpStatus.CREATED);
+        return new ResponseEntity<>(cartItemMapper.map(cartItem,0),HttpStatus.CREATED);
     }
 
     @PutMapping("/user/{userId}/items/{cartItemId}")
@@ -47,7 +55,7 @@ public class CartController
     {
         var cartItem = service.updateCartItemQuantity(userId,cartItemId, cartItemDTO.getQuantity());
 
-        return new ResponseEntity<>(cartItem,HttpStatus.CREATED);
+        return new ResponseEntity<>(cartItemMapper.map(cartItem,0),HttpStatus.CREATED);
     }
 
     @DeleteMapping("/user/{userId}/items/{cartItemId}")
@@ -56,7 +64,7 @@ public class CartController
     {
         var deletedItem = service.removeItemFromCart(userId,cartItemId);
 
-        return new ResponseEntity<>(deletedItem,HttpStatus.OK);
+        return new ResponseEntity<>(cartItemMapper.map(deletedItem,0),HttpStatus.OK);
     }
 
     @DeleteMapping("/user/{userId}")
@@ -65,6 +73,6 @@ public class CartController
 
         var cart = service.clearCart(userId);
 
-        return new ResponseEntity<>(cart,HttpStatus.OK);
+        return new ResponseEntity<>(cartMapper.map(cart,0),HttpStatus.OK);
     }
 }

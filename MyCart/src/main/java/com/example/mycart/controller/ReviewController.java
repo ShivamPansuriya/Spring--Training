@@ -1,6 +1,7 @@
 package com.example.mycart.controller;
 
-import com.example.mycart.payloads.ReviewDTO;
+import com.example.mycart.model.Review;
+import com.example.mycart.payloads.inheritDTO.ReviewDTO;
 import com.example.mycart.service.ReviewService;
 import com.example.mycart.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +15,10 @@ import static com.example.mycart.constants.Constants.REVIEW_LIMIT;
 
 @RestController
 @RequestMapping("/api/reviews")
-public class ReviewController extends AbstractGenericController<ReviewDTO,Long>
+public class ReviewController extends AbstractGenericController<Review,ReviewDTO,Long>
 {
     @Autowired
     private ReviewService service;
-
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable Long id)
-//    {
-//        var reviews = service.findById(id);
-//
-//        return new ResponseEntity<>(reviews, HttpStatus.OK);
-//    }
 
     @GetMapping("/product/{productId}")
     public ResponseEntity<List<ReviewDTO>> getReviewsByProductId(@PathVariable Long productId)
@@ -52,24 +45,6 @@ public class ReviewController extends AbstractGenericController<ReviewDTO,Long>
 
         return new ResponseEntity<>(createdReview, HttpStatus.CREATED);
     }
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ReviewDTO> updateReview(@PathVariable Long id,
-//                                                  @RequestBody ReviewDTO review)
-//    {
-//        review.setId(id);
-//        var updatedReview = service.update(id,review);
-//
-//        return new ResponseEntity<>(updatedReview, HttpStatus.OK);
-//    }
-
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<ReviewDTO> deleteReview(@PathVariable Long id)
-//    {
-//        var review = service.delete(id);
-//
-//        return new ResponseEntity<>(review, HttpStatus.OK);
-//    }
 
     @GetMapping("/product/{productId}/latest")
     public ResponseEntity<List<ReviewDTO>> getLatestReviewsForProduct(
@@ -82,7 +57,7 @@ public class ReviewController extends AbstractGenericController<ReviewDTO,Long>
     }
 
     @Override
-    protected GenericService<ReviewDTO, Long> getService() {
+    protected GenericService<Review,ReviewDTO, Long> getService() {
         return service;
     }
 }

@@ -1,26 +1,33 @@
 package com.example.mycart.service;
 
-import com.example.mycart.payloads.OrderDTO;
+import com.example.mycart.model.Order;
+import com.example.mycart.model.OrderItems;
+import com.example.mycart.model.Product;
+import com.example.mycart.payloads.inheritDTO.OrderDTO;
 import com.example.mycart.utils.OrderStatus;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OrderService extends GenericService<OrderDTO,Long>
+public interface OrderService extends GenericService<Order,OrderDTO,Long>
 {
-    OrderDTO create(Long userId);
+    Order create(Long userId);
 
 //    OrderDTO getOrderById(Long orderId);
 
-    List<OrderDTO> getOrdersByUser(Long userId);
+    List<Order> getOrdersByUser(Long userId);
 
-    OrderDTO updateOrderStatus(Long orderId, OrderStatus status);
+    Order updateOrderStatus(Long orderId, OrderStatus status);
 
-    OrderDTO cancelOrder(Long orderId);
+    Order cancelOrder(Long orderId);
 
-    OrderDTO removeOrderItem(Long OrderId,Long productId);
+    Order removeOrderItem(Long OrderId,Long productId);
 
-    List<OrderDTO> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    List<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+
+    Page<OrderItems> findOrderItemsByOrder(Long orderId, int pageNo);
+//    Page<Order> findOrderByUser(Long userId, int pageNo);
 
 
 }

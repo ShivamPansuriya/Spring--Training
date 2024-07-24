@@ -1,22 +1,21 @@
 package com.example.mycart.service;
 
-import com.example.mycart.payloads.InventoryDTO;
+import com.example.mycart.model.Inventory;
+import com.example.mycart.payloads.inheritDTO.InventoryDTO;
 
 import java.util.List;
 
-public interface InventoryService extends GenericService<InventoryDTO,Long>
+public interface InventoryService extends GenericService<Inventory,InventoryDTO,Long>
 {
 //    List<InventoryDTO> inventories();
 
-    List<InventoryDTO> findLowStockInventories(int threshold, Long vendorId);
+    List<Inventory> findLowStockInventories(int threshold, Long vendorId);
 
 //    InventoryDTO getInventoryById(Long id);
 
-    InventoryDTO createInventory(InventoryDTO inventory, Long productId);
-
-    InventoryDTO delete(Long id);
+    Inventory createInventory(InventoryDTO inventory, Long productId);
 
 //    InventoryDTO update(Long id, InventoryDTO inventoryDetails);
 
-    InventoryDTO getInventoryByProduct(Long productId);
+    Inventory getInventoryByProduct(Long productId);
 }

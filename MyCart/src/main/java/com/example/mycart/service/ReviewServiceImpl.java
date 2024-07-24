@@ -2,8 +2,9 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Review;
-import com.example.mycart.payloads.ReviewDTO;
+import com.example.mycart.payloads.inheritDTO.ReviewDTO;
 import com.example.mycart.repository.ReviewRepository;
+import com.example.mycart.utils.Ratings;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -71,9 +72,9 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
     public ReviewDTO create(ReviewDTO reviewDTO, Long userId, Long productId) {
         var review = mapper.map(reviewDTO, Review.class);
 
-        review.setUser(userService.findUserById(userId));
+        review.setUserId(userService.findUserById(userId).getId());
 
-        review.setProduct(productService.findByProductId(productId));
+        review.setProductId(productService.findByProductId(productId).getId());
 
         review.setReviewDate(LocalDateTime.now());
 
@@ -84,15 +85,16 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
 
     @Override
     @CachePut
-    public ReviewDTO update( Long id,ReviewDTO reviewDTO)
+    public Review update( Long id,ReviewDTO reviewDTO)
     {
         var review = findReviewById(id);
         review.setReviewDate(LocalDateTime.now());
         review.setComment(reviewDTO.getComment());
-        review.setRatings(reviewDTO.getRatings());
+        review.setRatings(reviewDTO.getRating());
         var updatedReview = repository.save(review);
-        return mapper.map(updatedReview,ReviewDTO.class);
+        return updatedReview;
     }
+
 //
 //    @Override
 //    @CacheEvict

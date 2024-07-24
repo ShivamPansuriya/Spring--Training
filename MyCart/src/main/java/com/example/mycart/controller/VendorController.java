@@ -1,6 +1,7 @@
 package com.example.mycart.controller;
 
-import com.example.mycart.payloads.VendorDTO;
+import com.example.mycart.model.Vendor;
+import com.example.mycart.payloads.inheritDTO.VendorDTO;
 import com.example.mycart.service.VendorService;
 import com.example.mycart.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +14,10 @@ import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("/api/vendor/")
-public class VendorController extends AbstractGenericController<VendorDTO,Long>
+public class VendorController extends AbstractGenericController<Vendor,VendorDTO,Long>
 {
     @Autowired
     VendorService service;
-
-//    @PutMapping("/{vendorId}")
-//    public ResponseEntity<VendorDTO> updateVendor(@RequestBody VendorDTO vendorDTO, @PathVariable Long vendorId)
-//    {
-////        vendorDTO.setId(vendorId);
-//
-//        var updatedVendor = service.update(vendorId,vendorDTO);
-//
-//        return new ResponseEntity<>(updatedVendor, HttpStatus.CREATED);
-//    }
 
     @Async("threadPoolTaskExecutor")
     @GetMapping("/{vendorId}/download")
@@ -46,7 +37,7 @@ public class VendorController extends AbstractGenericController<VendorDTO,Long>
     }
 
     @Override
-    protected GenericService<VendorDTO, Long> getService() {
+    protected GenericService<Vendor,VendorDTO, Long> getService() {
         return service;
     }
 }

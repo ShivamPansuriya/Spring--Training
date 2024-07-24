@@ -1,6 +1,5 @@
-package com.example.mycart.payloads;
+package com.example.mycart.payloads.inheritDTO;
 
-import com.example.mycart.model.CartItem;
 import lombok.*;
 
 import java.util.List;
@@ -9,7 +8,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartDTO
+public class CartDTO extends BaseDTO
 {
+    private Long userId;
     private List<CartItemDTO> cartItems;
 }

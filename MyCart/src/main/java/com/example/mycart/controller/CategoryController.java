@@ -1,9 +1,12 @@
 package com.example.mycart.controller;
 
-import com.example.mycart.payloads.CategoryDTO;
+import com.example.mycart.model.Category;
+import com.example.mycart.payloads.inheritDTO.CategoryDTO;
 import com.example.mycart.service.CategoryService;
 import com.example.mycart.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,64 +14,32 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-public class CategoryController extends AbstractGenericController<CategoryDTO,Long> {
+public class CategoryController extends AbstractGenericController<Category,CategoryDTO,Long> {
 
     @Autowired
     private CategoryService service;
 
-//    @PostMapping
-//    public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO categoryDTO) {
-//        var newCategory = service.create(categoryDTO);
-//        return new ResponseEntity<>(newCategory, HttpStatus.CREATED);
-//    }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<CategoryDTO> getCategory(@PathVariable Long id) {
-//        var category = service.findById(id);
-//        return ResponseEntity.ok(category);
-//    }
-//
-//    @GetMapping
-//    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-//        var categories = service.findAll();
-//        return ResponseEntity.ok(categories);
-//    }
-
-//    @PutMapping("/{id}")
-//    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO)
-//    {
-//        categoryDTO.setId(id);
-//        var updatedCategory = service.update(id, categoryDTO);
-//        return ResponseEntity.ok(updatedCategory);
-//    }
-
     @PostMapping("/{parentId}/{subId}")
     public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long parentId, @PathVariable Long subId) {
         var updatedCategory = service.addSubCategory(subId,parentId);
-        return ResponseEntity.ok(updatedCategory);
+        return new ResponseEntity<>(mapper.map(updatedCategory,0),HttpStatus.CREATED);
     }
 
     @PutMapping("/subcategories/{subId}")
     public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long subId) {
         var updatedCategory = service.removeSubCategory(subId);
-        return ResponseEntity.ok(updatedCategory);
+        return ResponseEntity.ok(mapper.map(updatedCategory,0));
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long id) {
-//        var deletedCategory = service.delete(id);
-//        return new ResponseEntity<>(deletedCategory,HttpStatus.OK);
-//    }
-
     @GetMapping("/{id}/subcategories")
-    public ResponseEntity<List<CategoryDTO>> getSubcategories(@PathVariable Long id) {
-        var subcategories = service.getSubcategories(id);
+    public ResponseEntity<Page<CategoryDTO>> getSubcategories(@PathVariable Long id,@RequestParam(defaultValue = "0") int pageNo) {
+        var subcategories = service.getSubcategories(id,pageNo);
 
-        return ResponseEntity.ok(subcategories);
+        return new ResponseEntity<>(subcategories.map(category ->mapper.map(category,pageNo)), HttpStatus.OK);
     }
 
     @Override
-    protected GenericService<CategoryDTO, Long> getService() {
+    protected GenericService<Category,CategoryDTO, Long> getService() {
         return service;
     }
 }

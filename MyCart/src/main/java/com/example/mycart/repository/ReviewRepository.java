@@ -10,12 +10,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review,Long>
+public interface ReviewRepository extends BaseRepository<Review,Long>
 {
     List<Review> findByProductId(Long productId);
 
     List<Review> findByUserId(Long userId);
 
-    @Query(value = "SELECT r FROM Review r WHERE r.product.id = :productId ORDER BY r.reviewDate DESC LIMIT :limit")
+    @Query(value = "SELECT r FROM Review r WHERE r.productId = :productId ORDER BY r.reviewDate DESC LIMIT :limit")
     List<Review> findLatestReviewsForProduct(@Param("productId") Long productId, @Param("limit") int limit);
 }

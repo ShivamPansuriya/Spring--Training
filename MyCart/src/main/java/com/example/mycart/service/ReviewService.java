@@ -1,10 +1,11 @@
 package com.example.mycart.service;
 
-import com.example.mycart.payloads.ReviewDTO;
+import com.example.mycart.model.Review;
+import com.example.mycart.payloads.inheritDTO.ReviewDTO;
 
 import java.util.List;
 
-public interface ReviewService extends GenericService<ReviewDTO,Long>
+public interface ReviewService extends GenericService<Review,ReviewDTO,Long>
 {
     List<ReviewDTO> getReviewsByProductId(Long productId);
 

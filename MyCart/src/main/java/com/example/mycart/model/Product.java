@@ -9,54 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class Product implements BaseEntity<Product>
+@NoArgsConstructor
+@AllArgsConstructor
+public class Product extends NamedEntity
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @NotBlank
-    @Column(nullable = false)
-    private String name;
-
-    @NotBlank
-    @Column(length = 1000)
-    private String description;
-
     @Column(nullable = false)
     private BigDecimal price;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private Long categoryId;
 
-    @ManyToOne
-    @JoinColumn(name = "vendor_id")
-    private Vendor vendor;
+    private Long vendorId;
 
-    @ToString.Exclude
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Inventory inventory;
+    private Long inventoryId;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Review> reviews = new ArrayList<>();
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<CartItem> cartItems = new ArrayList<>();
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<OrderItems> orderItems = new ArrayList<>();
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
+//    @Transient
+//    private List<Long> reviewsId = new ArrayList<>();
 }
 

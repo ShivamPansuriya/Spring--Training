@@ -2,15 +2,19 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Product;
-import com.example.mycart.payloads.ProductDTO;
+import com.example.mycart.payloads.inheritDTO.ProductDTO;
 import com.example.mycart.payloads.ProductResponse;
 import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.repository.CategoryRepository;
 import com.example.mycart.repository.ProductRepository;
 import com.example.mycart.repository.VendorRepository;
+import com.example.mycart.utils.GenericSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +40,7 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
     private ModelMapper modelMapper;
 
     @Override
-    public ProductDTO create(ProductDTO productDTO, Long categoryId, Long vendorId)
+    public Product create(ProductDTO productDTO, Long categoryId, Long vendorId)
     {
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
@@ -44,20 +48,18 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
         var vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor", "vendorId", vendorId));
 
-        var product = productRepository.findByNameAndCategoryAndVendor(productDTO.getName(),category,vendor)
+        return productRepository.findByNameAndCategoryAndVendor(productDTO.getName(),category.getId(),vendor.getId())
                 .orElseGet(()->{
                     log.info("creating new product");
 
                     var newProduct = modelMapper.map(productDTO, Product.class);
 
-                    newProduct.setCategory(category);
+                    newProduct.setCategoryId(category.getId());
 
-                    newProduct.setVendor(vendor);
+                    newProduct.setVendorId(vendor.getId());
 
                     return productRepository.save(newProduct);
                 });
-
-        return modelMapper.map(product, ProductDTO.class);
     }
 
 //    @Override
@@ -82,36 +84,20 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
     }
 
     @Override
-    public ProductResponse findProductsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice)
+    public Page<Product> findProductsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice)
     {
-        var products = productRepository.findByPriceBetween(minPrice,maxPrice);
-
-        var productDTOs = products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
-                .toList();
-
-        var productResponse = new ProductResponse();
-
-        productResponse.setContent(productDTOs);
-
-        return productResponse;
+        return productRepository.findProductsByPriceBetween(minPrice,maxPrice, PageRequest.of(0,10));
     }
 
     @Override
-    public ProductResponse getProductByCategory(Long categoryId)
+    public Page<Product> getProductByCategory(Long categoryId, int pageNo)
     {
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        var products = productRepository.findByCategoryOrderByPriceAsc(category);
+        var products = productRepository.findByCategoryOrderByPriceAsc(category.getId(),PageRequest.of(pageNo,10));
 
-        var productDTOs = products.stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
-
-        var productResponse = new ProductResponse();
-
-        productResponse.setContent(productDTOs);
-
-        return productResponse;
+        return products;
     }
 
     @Override
@@ -141,7 +127,7 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
 //
     @Override
     @Transactional
-    public ProductDTO update(Long productId, ProductDTO productDTO) {
+    public Product update(Long productId, ProductDTO productDTO) {
         var product = findByProductId(productId);
 
         product.setName(productDTO.getName());
@@ -152,7 +138,7 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
 
         var updatedProduct = productRepository.save(product);
 
-        return modelMapper.map(product,ProductDTO.class);
+        return updatedProduct;
     }
 
     @Override
@@ -167,6 +153,11 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
                         ((Number) row[2]).intValue(),
                         ((Number) row[3]).doubleValue()))
                 .toList();
+    }
+
+    @Override
+    public Page<Product> findProductByVendor(Long vendorId, int pageNo) {
+        return productRepository.findAll(GenericSpecification.getList("vendorId",vendorId),PageRequest.of(pageNo,10));
     }
 
     @Override
