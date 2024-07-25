@@ -24,9 +24,6 @@ public class Review extends BaseEntity<Long>
     @Enumerated(EnumType.STRING)
     private Ratings ratings;
 
-    @Column(nullable = false)
-    private LocalDateTime reviewDate;
-
     @Column(length = 500)
     private String comment;
 }

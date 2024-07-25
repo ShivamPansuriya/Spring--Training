@@ -1,4 +1,4 @@
-package com.example.mycart.payloads.inheritDTO;
+package com.example.mycart.payloads;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,8 +15,6 @@ public class OrderItemDTO extends BaseDTO {
     private int quantity;
 
     private String productName;
-
-    private Long orderId;
 
     private BigDecimal price;
 }

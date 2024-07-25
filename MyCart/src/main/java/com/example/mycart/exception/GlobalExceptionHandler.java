@@ -4,6 +4,7 @@ package com.example.mycart.exception;
 import com.example.mycart.payloads.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,18 +33,10 @@ public class GlobalExceptionHandler
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String,Object>> exceptionHandler(Exception exception)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse> methodArgumentNotValidException(MethodArgumentNotValidException exception)
     {
-        var errors = new HashMap<String,Object>();
-
-        errors.put("message", "internal server error. try after some time");
-
-        errors.put(STATUS, false);
-
-        log.error(exception.getMessage());
-
-        return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ApiResponse(exception.getFieldError().getDefaultMessage(), false), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -64,5 +56,21 @@ public class GlobalExceptionHandler
     {
         return new ResponseEntity<>(new ApiResponse(exception.getCause().getMessage(), false), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String,Object>> exceptionHandler(Exception exception)
+    {
+        var errors = new HashMap<String,Object>();
+
+        errors.put("message", "internal server error. try after some time");
+
+        errors.put(STATUS, false);
+
+        log.error(exception.getMessage());
+
+        return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 //    org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "inventory_product_id_key"
 }
+
+//DefaultMessageSourceResolvable

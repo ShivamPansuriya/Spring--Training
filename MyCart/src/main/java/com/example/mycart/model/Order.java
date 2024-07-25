@@ -26,10 +26,6 @@ public class Order extends BaseEntity<Long>
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Column(nullable = false)
     private BigDecimal totalAmount;
-
-    @Transient
-    private List<Long> orderItemsId = new ArrayList<>();
 }
 

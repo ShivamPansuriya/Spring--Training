@@ -1,4 +1,4 @@
-package com.example.mycart.payloads.inheritDTO;
+package com.example.mycart.payloads;
 
 
 import com.example.mycart.utils.Ratings;
@@ -15,9 +15,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReviewDTO extends BaseDTO
 {
-    private Long userId;
+    private String userName;
+
     private String productName;
+
     private Ratings rating;
+
     private LocalDateTime reviewDate;
+
     private String comment;
 }

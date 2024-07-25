@@ -2,7 +2,7 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.model.Vendor;
-import com.example.mycart.payloads.inheritDTO.VendorDTO;
+import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.repository.VendorRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,45 +33,44 @@ public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,
 
     public byte[] generateAnalysis(Long vendorId)
     {
-//        try (Workbook workbook = new XSSFWorkbook())
-//        {
-//            Sheet sheet = workbook.createSheet("account analysis");
-//
-//            Row headerRow = sheet.createRow(0);
-//
-//            for (int i = 0; i < COLUMN_HEADING.length; i++)
-//            {
-//                Cell cell = headerRow.createCell(i);
-//
-//                cell.setCellValue(COLUMN_HEADING[i]);
-//            }
-//
-//            var result = repository.findAnalysis(vendorId);
-//
-//            int rowNum = 0;
-//
-//            while (++rowNum<=result.size())
-//            {
-//                Row row = sheet.createRow(rowNum);
-//                for(int i=0; i< COLUMN_HEADING.length; ++i)
-//                {
-//                    var cell = row.createCell(i);
-//                    cell.setCellValue(result.get(rowNum-1)[i].toString());
-//                }
-//            }
-//
-//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//
-//            workbook.write(outputStream);
-//
-//            return outputStream.toByteArray();
-//        }
-//        catch (Exception e)
-//        {
-//            log.error(e.getMessage());
-//            throw new ApiException("Unable to generate response");
-//        }
-        return new byte[0];
+        try (Workbook workbook = new XSSFWorkbook())
+        {
+            Sheet sheet = workbook.createSheet("account analysis");
+
+            Row headerRow = sheet.createRow(0);
+
+            for (int i = 0; i < COLUMN_HEADING.length; i++)
+            {
+                Cell cell = headerRow.createCell(i);
+
+                cell.setCellValue(COLUMN_HEADING[i]);
+            }
+
+            var result = repository.findAnalysis(vendorId);
+
+            int rowNum = 0;
+
+            while (++rowNum<=result.size())
+            {
+                Row row = sheet.createRow(rowNum);
+                for(int i=0; i< COLUMN_HEADING.length; ++i)
+                {
+                    var cell = row.createCell(i);
+                    cell.setCellValue(result.get(rowNum-1)[i].toString());
+                }
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            workbook.write(outputStream);
+
+            return outputStream.toByteArray();
+        }
+        catch (Exception e)
+        {
+            log.error(e.getMessage());
+            throw new ApiException("Unable to generate response");
+        }
     }
 
     @Override

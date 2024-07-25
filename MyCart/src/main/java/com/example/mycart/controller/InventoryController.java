@@ -1,11 +1,15 @@
 package com.example.mycart.controller;
 
 import com.example.mycart.model.Inventory;
-import com.example.mycart.payloads.inheritDTO.InventoryDTO;
+import com.example.mycart.modelmapper.EntityMapper;
+import com.example.mycart.modelmapper.InventoryMapper;
+import com.example.mycart.payloads.InventoryDTO;
 import com.example.mycart.service.InventoryService;
 import com.example.mycart.service.GenericService;
+import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,23 +24,13 @@ public class InventoryController extends AbstractGenericController<Inventory,Inv
     @Autowired
     private InventoryService service;
 
-
-//    @GetMapping("/")
-//    public ResponseEntity<List<InventoryDTO>> getAllInventories() {
-//        var inventories = service.findAll();
-//        return new ResponseEntity<>(inventories, HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long id) {
-//        var inventory = service.findById(id);
-//        return new ResponseEntity<>(inventory, HttpStatus.OK);
-//    }
+    @Autowired
+    private InventoryMapper<Inventory,InventoryDTO> mapper;
 
     @GetMapping("/products/{productId}")
     public ResponseEntity<InventoryDTO> getInventoryByProduct(@PathVariable Long productId) {
         var inventory = service.getInventoryByProduct(productId);
-        return new ResponseEntity<>(mapper.map(inventory,0), HttpStatus.OK);
+        return new ResponseEntity<>(mapper.toDTO(inventory,0), HttpStatus.OK);
     }
 
     @GetMapping("/vendor/{vendorId}/")
@@ -44,15 +38,20 @@ public class InventoryController extends AbstractGenericController<Inventory,Inv
     {
         var inventories = service.findLowStockInventories(threshold, vendorId);
 
-        return new ResponseEntity<>(inventories.stream().map(inventory->mapper.map(inventory,0)).toList(), HttpStatus.OK);
+        return new ResponseEntity<>(inventories.stream().map(inventory->mapper.toDTO(inventory,0)).toList(), HttpStatus.OK);
     }
 
     @PostMapping("/products/{productId}")
-    public ResponseEntity<InventoryDTO> createInventory(@RequestBody InventoryDTO inventory, @PathVariable Long productId)
+    public ResponseEntity<InventoryDTO> createInventory(@Valid @RequestBody InventoryDTO inventory, @PathVariable Long productId)
     {
-        var createdInventory = service.createInventory(inventory, productId);
+        var createdInventory = service.createInventory(mapper.toEntity(inventory), productId);
 
-        return new ResponseEntity<>(mapper.map(createdInventory,0), HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.toDTO(createdInventory,0), HttpStatus.CREATED);
+    }
+
+    @Override
+    protected EntityMapper<Inventory, InventoryDTO> getMapper() {
+        return mapper;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.example.mycart.controller;
 
 import com.example.mycart.model.Vendor;
-import com.example.mycart.payloads.inheritDTO.VendorDTO;
+import com.example.mycart.modelmapper.EntityMapper;
+import com.example.mycart.modelmapper.VendorMapper;
+import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.service.VendorService;
 import com.example.mycart.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class VendorController extends AbstractGenericController<Vendor,VendorDTO
     @Autowired
     VendorService service;
 
+    @Autowired
+    private VendorMapper<Vendor,VendorDTO> mapper;
+
     @Async("threadPoolTaskExecutor")
     @GetMapping("/{vendorId}/download")
     public Future<ResponseEntity<byte[]>> downloadExcel(@PathVariable Long vendorId) {
@@ -34,6 +39,11 @@ public class VendorController extends AbstractGenericController<Vendor,VendorDTO
             return new AsyncResult<>(ResponseEntity.ok()
                 .headers(headers)
                 .body(excelContent));
+    }
+
+    @Override
+    protected EntityMapper<Vendor, VendorDTO> getMapper() {
+        return mapper;
     }
 
     @Override

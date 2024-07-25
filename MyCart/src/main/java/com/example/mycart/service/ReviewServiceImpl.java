@@ -2,13 +2,15 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Review;
-import com.example.mycart.payloads.inheritDTO.ReviewDTO;
+import com.example.mycart.payloads.ReviewDTO;
 import com.example.mycart.repository.ReviewRepository;
-import com.example.mycart.utils.Ratings;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,32 +35,15 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
     private ModelMapper mapper;
 
     @Override
-    public List<ReviewDTO> getReviewsByProductId(Long productId)
+    public Page<Review> getReviewsByProductId(Long productId,int pageNo)
     {
-        var reviews = repository.findByProductId(productId);
-
-        return reviews.stream()
-                .map(review -> mapper.map(review,ReviewDTO.class))
-                .toList();
+        return repository.findByProductId(productId,  PageRequest.of(pageNo,10));
     }
 
-//    @Override
-//    @Cacheable
-//    public ReviewDTO getReviewsById(Long id)
-//    {
-//        var review = findReviewById(id);
-//
-//        return mapper.map(review,ReviewDTO.class);
-//    }
-
     @Override
-    public List<ReviewDTO> getReviewsByUserId(Long userId)
+    public Page<Review> getReviewsByUserId(Long userId,int pageNo)
     {
-        var reviews = repository.findByUserId(userId);
-
-        return reviews.stream()
-                .map(review -> mapper.map(review,ReviewDTO.class))
-                .toList();
+        return repository.findByUserId(userId, PageRequest.of(pageNo,10));
     }
 
     public Review findReviewById(Long id)
@@ -69,18 +54,12 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
 
     @Override
     @Transactional
-    public ReviewDTO create(ReviewDTO reviewDTO, Long userId, Long productId) {
-        var review = mapper.map(reviewDTO, Review.class);
-
+    public Review create(Review review, Long userId, Long productId) {
         review.setUserId(userService.findUserById(userId).getId());
 
-        review.setProductId(productService.findByProductId(productId).getId());
+        review.setProductId(productService.findById(productId).getId());
 
-        review.setReviewDate(LocalDateTime.now());
-
-        var savedReview = repository.save(review);
-
-        return mapper.map(savedReview,ReviewDTO.class);
+        return repository.save(review);
     }
 
     @Override
@@ -88,31 +67,15 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
     public Review update( Long id,ReviewDTO reviewDTO)
     {
         var review = findReviewById(id);
-        review.setReviewDate(LocalDateTime.now());
         review.setComment(reviewDTO.getComment());
         review.setRatings(reviewDTO.getRating());
-        var updatedReview = repository.save(review);
-        return updatedReview;
+        return repository.save(review);
     }
 
-//
-//    @Override
-//    @CacheEvict
-//    public ReviewDTO deleteReview(Long id)
-//    {
-//        var review = findReviewById(id);
-//        repository.delete(review);
-//        return mapper.map(review,ReviewDTO.class);
-//    }
-
     @Override
-    public List<ReviewDTO> getLatestReviewsForProduct(Long productId, int limit)
+    public List<Review> getLatestReviewsForProduct(Long productId, int limit)
     {
-        var reviews = repository.findLatestReviewsForProduct(productId,limit);
-
-        return reviews.stream()
-                .map(review -> mapper.map(review,ReviewDTO.class))
-                .toList();
+        return repository.findLatestReviewsForProduct(productId,limit);
     }
 
     @Override

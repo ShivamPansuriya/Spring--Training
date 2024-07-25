@@ -1,5 +1,6 @@
-package com.example.mycart.payloads.inheritDTO;
+package com.example.mycart.payloads;
 
+import com.example.mycart.utils.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -17,7 +17,7 @@ import java.util.List;
 public class OrderDTO extends BaseDTO {
     private String userName;
     private LocalDateTime orderDate;
-    private String status;
+    private OrderStatus status;
     private BigDecimal totalAmount;
     private Page<OrderItemDTO> orderItems;
 }

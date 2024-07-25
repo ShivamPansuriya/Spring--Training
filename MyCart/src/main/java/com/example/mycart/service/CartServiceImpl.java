@@ -3,8 +3,6 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Cart;
 import com.example.mycart.model.CartItem;
-import com.example.mycart.payloads.inheritDTO.CartDTO;
-import com.example.mycart.payloads.inheritDTO.CartItemDTO;
 import com.example.mycart.repository.CartItemRepository;
 import com.example.mycart.repository.CartRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,26 +50,8 @@ public class CartServiceImpl implements CartService
 
                     newCart.setUserId(userId);
 
-                    var cart =  cartRepository.save(newCart);
-
-                    user.setCartId(cart.getId());
-
-                    return cart;
+                    return cartRepository.save(newCart);
                 });
-    }
-
-
-
-//    @Override
-//    @Cacheable
-//    public Cart getCartByUser(Long userId)
-//    {
-//        return  findCartByUser(userId);
-//    }
-
-    @Override
-    public CartItem getCartItemsId(Long id) {
-        return cartItemRepository.findById(id).get();
     }
 
     @Override
@@ -81,7 +60,7 @@ public class CartServiceImpl implements CartService
     public CartItem addItemToCart(Long userId, Long productId, int quantity) {
         var cart = findCartByUser(userId);
 
-        var product = productService.findByProductId(productId);
+        var product = productService.findById(productId);
 
         var existingItem = cartItemRepository.findByCartIdAndProductId(cart.getId(),product.getId());
 
@@ -145,8 +124,6 @@ public class CartServiceImpl implements CartService
     public Cart clearCart(Long userId)
     {
         var cart = findCartByUser(userId);
-        var user = userService.findUserById(userId);
-        user.setCartId(null);
         cartRepository.delete(cart);
         return cart;
     }

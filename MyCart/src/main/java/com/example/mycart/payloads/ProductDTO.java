@@ -1,13 +1,12 @@
-package com.example.mycart.payloads.inheritDTO;
+package com.example.mycart.payloads;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import org.springframework.data.domain.Page;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +17,5 @@ public class ProductDTO extends NamedDTO
     private BigDecimal price;
     private String categoryName;
     private String vendorName;
-    private Long inventoryId;
-    private List<String> reviews;
+    private Page<ReviewDTO> reviews;
 }

@@ -15,8 +15,5 @@ public class Cart extends BaseEntity<Long>
 {
     @Column(nullable = false)
     private Long userId;
-
-    @Transient
-    private List<Long> cartItemsId = new ArrayList<>();
 }
 

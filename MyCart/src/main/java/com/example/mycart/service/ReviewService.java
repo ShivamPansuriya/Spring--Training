@@ -1,23 +1,18 @@
 package com.example.mycart.service;
 
 import com.example.mycart.model.Review;
-import com.example.mycart.payloads.inheritDTO.ReviewDTO;
+import com.example.mycart.payloads.ReviewDTO;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface ReviewService extends GenericService<Review,ReviewDTO,Long>
 {
-    List<ReviewDTO> getReviewsByProductId(Long productId);
+    Page<Review> getReviewsByProductId(Long productId, int pageNo);
 
-//    ReviewDTO getReviewsById(Long Id);
+    Page<Review> getReviewsByUserId(Long userId, int pageNo);
 
-    List<ReviewDTO> getReviewsByUserId(Long userId);
+    Review create(Review review, Long userId, Long productId);
 
-    ReviewDTO create(ReviewDTO reviewDTO, Long userId, Long productId);
-
-//    ReviewDTO updateReview(Long id,ReviewDTO reviewDTO);
-//
-//    ReviewDTO deleteReview(Long id);
-
-    List<ReviewDTO> getLatestReviewsForProduct(Long productId, int limit);
+    List<Review> getLatestReviewsForProduct(Long productId, int limit);
 }

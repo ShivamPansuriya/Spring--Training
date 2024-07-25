@@ -3,7 +3,7 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
-import com.example.mycart.payloads.inheritDTO.CategoryDTO;
+import com.example.mycart.payloads.CategoryDTO;
 import com.example.mycart.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
@@ -85,10 +83,6 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     {
         Category category = findCategoryById(id);
 
-        if(!category.getSubCategoriesId().isEmpty())
-        {
-            throw new ApiException("first remove all sub categories from list and then delete");
-        }
         repository.delete(category);
 
         return category;
@@ -106,17 +100,12 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     @Transactional
     public Category addSubCategory(Long categoryId, Long parentId)
     {
-        var parentCategory = findCategoryById(parentId);
-
         var subCategory = findCategoryById(categoryId);
 
         subCategory.setParentCategoryId(parentId);
 
-        parentCategory.addSubCategories(subCategory);
+        return repository.save(subCategory);
 
-        var savedSubCategory = repository.save(subCategory);
-
-        return savedSubCategory;
     }
 
     @Override

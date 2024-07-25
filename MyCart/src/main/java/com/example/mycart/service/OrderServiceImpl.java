@@ -5,10 +5,9 @@ import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.CartItem;
 import com.example.mycart.model.Order;
 import com.example.mycart.model.OrderItems;
-import com.example.mycart.payloads.inheritDTO.OrderDTO;
+import com.example.mycart.payloads.OrderDTO;
 import com.example.mycart.repository.OrderItemsRepository;
 import com.example.mycart.repository.OrderRepository;
-import com.example.mycart.utils.GenericSpecification;
 import com.example.mycart.utils.OrderStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +46,6 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private ModelMapper mapper;
-    @Autowired
-    private OrderRepository orderRepository;
-
     @Override
     @Transactional
     public Order create(Long userId)
@@ -61,7 +55,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
         var cartItems = cartService.getCartItems(userId);
 
         var validProducts = cartItems.stream()
-                .filter(cartItem -> (inventoryService.findById(productService.findByProductId(cartItem.getProductId()).getInventoryId()).getQuantity() - cartItem.getQuantity())>0)
+                .filter(cartItem -> (inventoryService.getInventoryByProduct(cartItem.getProductId()).getQuantity() - cartItem.getQuantity())>0)
                 .toList();
 
         if (validProducts.isEmpty()) {
@@ -76,37 +70,18 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
         order.setStatus(OrderStatus.PENDING);
 
+        var savedOrder = repository.save(order);
+
         List<OrderItems> orderItems = validProducts.stream()
                 .map(cartItem -> createOrderItem(order, cartItem))
                 .toList();
 
-//        order.setOrderItems(orderItems);
-
         order.setTotalAmount(calculateTotalAmount(orderItems));
-
-        var savedOrder = repository.save(order);
-
-        user.getOrders().add(savedOrder.getId());
 
         cartService.clearCart(userId);
 
         return savedOrder;
     }
-
-    public Order findOrderById(Long orderId)
-    {
-        return repository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order","id",orderId));
-    }
-
-//    @Override
-//    @Cacheable
-//    public OrderDTO getOrderById(Long orderId)
-//    {
-//        var order = findOrderById(orderId);
-//
-//        return mapper.map(order, OrderDTO.class);
-//    }
 
     @Override
     @Transactional
@@ -115,6 +90,15 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
         var user = userService.findUserById(userId);
 
         return repository.findByUserIdOrderByOrderDateDesc(user.getId());
+    }
+
+    @Override
+    @Transactional
+    public Page<Order> getOrdersByUser(Long userId, int pageNo)
+    {
+        var user = userService.findUserById(userId);
+
+        return repository.findByUserIdOrderByOrderDateDesc(user.getId(), PageRequest.of(pageNo,10));
 
     }
 
@@ -123,17 +107,13 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @CachePut
     public Order updateOrderStatus(Long orderId, OrderStatus status)
     {
-        var order = findOrderById(orderId);
+        var order = findById(orderId);
 
         if(order.getStatus().ordinal() < OrderStatus.SHIPPED.ordinal() && status.ordinal() >= OrderStatus.SHIPPED.ordinal())
         {
-            order.getOrderItemsId().forEach(orderItemId ->
+            orderItemsRepository.findOrderItemsByOrderIdEquals(orderId).forEach(orderItem ->
             {
-                var orderItem = orderItemsRepository.findById(orderItemId).orElseThrow(()->new ResourceNotFoundException("orderItem","id",orderItemId));
-
-                var inventoryId = productService.findByProductId(orderItem.getProductId()).getInventoryId();
-
-                var inventory = inventoryService.findById(inventoryId);
+                var inventory = inventoryService.getInventoryByProduct(orderItem.getProductId());
 
                 inventory.setQuantity(inventory.getQuantity() - orderItem.getQuantity());
             });
@@ -150,7 +130,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @CacheEvict
     public Order cancelOrder(Long orderId)
     {
-        var order = findOrderById(orderId);
+        var order = findById(orderId);
 
         if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.DELIVERED) {
             throw new ApiException("Cannot cancel an order that has been shipped or delivered");
@@ -166,19 +146,17 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @CachePut
     public Order removeOrderItem(Long orderId, Long productId)
     {
-        var order = findOrderById(orderId);
+        var order = findById(orderId);
 
         if(order.getStatus().ordinal() >= OrderStatus.SHIPPED.ordinal())
         {
             throw new ApiException("cannot remove item that is shipped,ordered or cancelled");
         }
 
-        var product = productService.findByProductId(productId);
+        var product = productService.findById(productId);
 
         var orderItem = orderItemsRepository.findByOrderIdAndProductId(order.getId(),product.getId())
                 .orElseThrow(()-> new ResourceNotFoundException("OrderItem", "id", productId));
-
-        order.getOrderItemsId().remove(orderItem.getId());
 
         orderItemsRepository.delete(orderItem);
 
@@ -186,21 +164,15 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     }
 
     @Override
-    public List<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate)
+    public Page<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate, int pageNo)
     {
-        return repository.findOrderBetweenDate(startDate,endDate);
+        return repository.findOrderBetweenDate(startDate,endDate, PageRequest.of(pageNo,10));
     }
 
     @Override
     public Page<OrderItems> findOrderItemsByOrder(Long orderId, int pageNo) {
-        return orderItemsRepository.findOrderItemsByOrderId(orderId,PageRequest.of(pageNo,10));
+        return orderItemsRepository.findOrderItemsByOrder(orderId,PageRequest.of(pageNo,10));
     }
-
-//    @Override
-//    public Page<Order> findOrderByUser(Long userId, int pageNo) {
-//        return repository.findAll(GenericSpecification.getList("userId",userId), PageRequest.of(pageNo,10));
-//    }
-
 
     private OrderItems createOrderItem(Order order, CartItem cartItem)
     {
@@ -208,8 +180,8 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
         orderItem.setOrderId(order.getId());
         orderItem.setProductId(cartItem.getProductId());
         orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setPrice(productService.findByProductId(cartItem.getProductId()).getPrice());
-        return orderItem;
+        orderItem.setPrice(productService.findById(cartItem.getProductId()).getPrice());
+        return orderItemsRepository.save(orderItem);
     }
 
     private BigDecimal calculateTotalAmount(List<OrderItems> orderItems) {

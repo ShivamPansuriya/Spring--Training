@@ -23,7 +23,7 @@ public interface ProductRepository extends BaseRepository<Product,Long>
     @Query(value = "SELECT p from Product p join Category c On p.categoryId = c.id where p.categoryId = :categoryId or  c.parentCategoryId = :categoryId ORDER BY p.price")
     Page<Product> findByCategoryOrderByPriceAsc(@Param("categoryId") Long categoryId, Pageable page);
 
-    List<Product> findByNameContainingIgnoreCase(String keyWord);
+    Page<Product> findByNameContainingIgnoreCase(String keyWord, Pageable page);
 
     Page<Product> findProductsByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable page);
 
@@ -31,7 +31,7 @@ public interface ProductRepository extends BaseRepository<Product,Long>
     Optional<Product> findByNameAndCategoryAndVendor(@Param("name") String name,@Param("category") Long category,@Param("vendor") Long vendor);
 
     @Query(value = "SELECT p.id, p.name, SUM(oi.quantity) as total_quantity, SUM(oi.price * oi.quantity) as total_revenue FROM order_items oi JOIN product p ON oi.product_id = p.id GROUP BY p.id, p.name ORDER BY total_quantity DESC LIMIT :limit", nativeQuery = true)
-    List<Object[]> findTopSellingProducts(int limit);
+    Page<Object[]> findTopSellingProducts(int limit, Pageable page);
 
 
 }

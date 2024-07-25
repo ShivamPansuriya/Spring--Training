@@ -57,13 +57,4 @@ public class Category extends NamedEntity
 {
     private Long parentCategoryId;
 
-    @Transient
-    private List<Long> subCategoriesId = new ArrayList<>();
-
-    @Transient
-    private List<Long> productsId = new ArrayList<>();
-
-    public void addSubCategories(Category category) {
-        subCategoriesId.add(category.getId());
-    }
 }

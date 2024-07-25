@@ -6,7 +6,8 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ApiResponse {
+public class ApiResponse
+{
     private String message;
 
     private Boolean status;

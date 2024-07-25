@@ -2,7 +2,7 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.User;
-import com.example.mycart.payloads.inheritDTO.UserDTO;
+import com.example.mycart.payloads.UserDTO;
 import com.example.mycart.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

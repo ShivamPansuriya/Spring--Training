@@ -16,6 +16,6 @@ public interface InventoryRepository extends BaseRepository<Inventory,Long>
 {
     Optional<Inventory> findByProductId(Long productId);
 
-    @Query(value = "SELECT i FROM Inventory i join Product p On p.inventoryId = i.id WHERE i.quantity < :threshold AND p.vendorId = :vendorId")
+    @Query(value = "SELECT i FROM Inventory i join Product p On p.id = i.productId WHERE i.quantity < :threshold AND p.vendorId = :vendorId")
     List<Inventory> findLowStockInventories(@Param("threshold") int threshold, @Param("vendorId") Long vendorId);
 }

@@ -1,9 +1,7 @@
-package com.example.mycart.payloads.inheritDTO;
+package com.example.mycart.payloads;
 
 import lombok.*;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 @Getter
 @Setter

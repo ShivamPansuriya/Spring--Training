@@ -2,7 +2,7 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Inventory;
-import com.example.mycart.payloads.inheritDTO.InventoryDTO;
+import com.example.mycart.payloads.InventoryDTO;
 import com.example.mycart.repository.InventoryRepository;
 import com.example.mycart.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -62,24 +62,19 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
 
     @Override
     @Transactional
-    public Inventory createInventory(InventoryDTO inventoryDTO, Long productId)
+    public Inventory createInventory(Inventory inventory, Long productId)
     {
         var product = productRepository.findById(productId)
                 .orElseThrow(()-> new ResourceNotFoundException("Product","id",productId));
 
         return inventoryRepository.findByProductId(product.getId())
                 .orElseGet(()->{
-                    var inventory = mapper.map(inventoryDTO,Inventory.class);
 
                     inventory.setProductId(product.getId());
 
                     inventory.setUpdatedTime(LocalDateTime.now());
 
-                    var savedInventory = inventoryRepository.save(inventory);
-
-                    product.setInventoryId(savedInventory.getId());
-
-                    return savedInventory;
+                    return inventoryRepository.save(inventory);
                 });
 
     }

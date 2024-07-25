@@ -2,6 +2,8 @@ package com.example.mycart.repository;
 
 import com.example.mycart.model.Review;
 import com.example.mycart.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,10 +14,10 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends BaseRepository<Review,Long>
 {
-    List<Review> findByProductId(Long productId);
+    Page<Review> findByProductId(Long productId, Pageable page);
 
-    List<Review> findByUserId(Long userId);
+    Page<Review> findByUserId(Long userId, Pageable page);
 
-    @Query(value = "SELECT r FROM Review r WHERE r.productId = :productId ORDER BY r.reviewDate DESC LIMIT :limit")
+    @Query(value = "SELECT r FROM Review r WHERE r.productId = :productId ORDER BY r.updatedTime DESC LIMIT :limit")
     List<Review> findLatestReviewsForProduct(@Param("productId") Long productId, @Param("limit") int limit);
 }

@@ -1,12 +1,12 @@
 package com.example.mycart.controller;
 
 import com.example.mycart.model.Product;
-import com.example.mycart.payloads.inheritDTO.ProductDTO;
-import com.example.mycart.payloads.ProductResponse;
+import com.example.mycart.modelmapper.EntityMapper;
+import com.example.mycart.modelmapper.ProductMapper;
+import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.service.ProductService;
 import com.example.mycart.service.GenericService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,14 +26,14 @@ public class ProductController extends AbstractGenericController<Product,Product
     @Autowired
     private ProductService service;
     @Autowired
-    private HttpServletRequest httpServletRequest;
+    private ProductMapper<Product,ProductDTO> mapper;
 
     @PostMapping("/categories/{categoryId}/vendors/{vendorId}")
     public ResponseEntity<ProductDTO> createProduct(@PathVariable Long categoryId, @PathVariable Long vendorId,@RequestBody ProductDTO productDTO)
     {
-        var response = service.create(productDTO, categoryId,vendorId);
+        var response = service.create(mapper.toEntity(productDTO), categoryId,vendorId);
 
-        return new ResponseEntity<>(mapper.map(response,0), HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.toDTO(response,0), HttpStatus.CREATED);
     }
 
     @GetMapping("/categories/{categoryId}")
@@ -41,16 +41,17 @@ public class ProductController extends AbstractGenericController<Product,Product
     {
         var products = service.getProductByCategory(categoryId,pageNo);
 
-        var response = products.map(product ->mapper.map(product,pageNo));
+        var response = products.map(product ->mapper.toDTO(product,pageNo));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/keyword/{keyword}")
-    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String  keyword)
+    public ResponseEntity<Page<ProductDTO>> getProductsByKeyword(@PathVariable String  keyword, @RequestParam(defaultValue = "0", required = false) int pageNo)
     {
-        var response = service.getProductByKeyword(keyword);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        var response = service.getProductByKeyword(keyword, pageNo);
+
+        return new ResponseEntity<>(response.map(product->mapper.toDTO(product,pageNo)), HttpStatus.OK);
     }
 
 
@@ -65,11 +66,16 @@ public class ProductController extends AbstractGenericController<Product,Product
     }
 
     @GetMapping("/top-selling-products")
-    public ResponseEntity<List<TopSellingProductDTO>> getTopSellingProducts(@RequestParam(defaultValue = "10") int limit)
+    public ResponseEntity<Page<TopSellingProductDTO>> getTopSellingProducts(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "0",required = false) int pageNo)
     {
-        var topProducts = service.getTopSellingProducts(limit);
+        var topProducts = service.getTopSellingProducts(limit, pageNo);
 
         return new ResponseEntity<>(topProducts, HttpStatus.OK);
+    }
+
+    @Override
+    protected EntityMapper<Product, ProductDTO> getMapper() {
+        return mapper;
     }
 
     @Override

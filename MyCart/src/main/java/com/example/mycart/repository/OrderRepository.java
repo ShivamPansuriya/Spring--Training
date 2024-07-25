@@ -2,6 +2,9 @@ package com.example.mycart.repository;
 
 import com.example.mycart.model.Order;
 import com.example.mycart.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +18,8 @@ public interface OrderRepository extends BaseRepository<Order,Long>
 {
     List<Order> findByUserIdOrderByOrderDateDesc(Long userId);
 
+    Page<Order> findByUserIdOrderByOrderDateDesc(Long userId, Pageable page);
+
     @Query(value = "SELECT o FROM Order o WHERE o.orderDate BETWEEN :startDate AND :endDate ORDER BY o.orderDate DESC")
-    List<Order> findOrderBetweenDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    Page<Order> findOrderBetweenDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable page);
 }

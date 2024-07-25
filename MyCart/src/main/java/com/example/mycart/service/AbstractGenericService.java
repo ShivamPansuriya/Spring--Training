@@ -2,24 +2,14 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.BaseEntity;
-import com.example.mycart.model.Cart;
-import com.example.mycart.model.Product;
-import com.example.mycart.payloads.inheritDTO.BaseDTO;
-import com.example.mycart.payloads.inheritDTO.NamedDTO;
+import com.example.mycart.payloads.BaseDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 //@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public abstract class AbstractGenericService<T extends BaseEntity<Long>, D extends BaseDTO, ID> implements GenericService<T,D, ID> {
@@ -36,18 +26,15 @@ public abstract class AbstractGenericService<T extends BaseEntity<Long>, D exten
 
     @Override
     @Transactional
-    public T create(D dto) {
-        T entity = mapper.map(dto, getEntityClass());
+    public T create(T entity) {
         return getRepository().save(entity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public T findById(ID id) {
-        var res = getRepository().findById(id)
+        return getRepository().findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(getEntityClass().getSimpleName(), "id", (Long) id));
-
-        return res;
     }
 
     @Override
