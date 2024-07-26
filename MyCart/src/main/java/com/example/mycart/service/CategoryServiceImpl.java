@@ -17,52 +17,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class CategoryServiceImpl extends AbstractGenericService<Category,CategoryDTO,Long> implements CategoryService
 {
     @Autowired
     private CategoryRepository repository;
 
-    @Autowired
-    private ModelMapper mapper;
-
-//    @Override
-//    public CategoryDTO createCategory(CategoryDTO categoryDTO)
-//    {
-//        var category = mapper.map(categoryDTO, Category.class);
-//
-//        var savedCategory = repository.save(category);
-//
-//        return mapCategory(savedCategory);
-//    }
-
-    public Category findCategoryById(Long id)
-    {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
-    }
-
-//    @Override
-//    @Cacheable
-//    public CategoryDTO getCategoryById(Long id)
-//    {
-//        var category =  findCategoryById(id);
-//        return mapCategory(category);
-//    }
-
-//    @Override
-//    public List<CategoryDTO> categories() {
-//        var categories = repository.findAll();
-//
-//        return categories.stream().map(this::mapCategory).toList();
-//    }
-
     @Override
     @Transactional
-    @CachePut
     public Category update(Long id, CategoryDTO categoryDTO)
     {
-        var category = findCategoryById(id);
+        var category = findById(id);
 
         var parentCategory = repository.findById(categoryDTO.getParentCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
@@ -77,19 +41,6 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     }
 
     @Override
-    @Transactional
-    @CacheEvict
-    public Category delete(Long id)
-    {
-        Category category = findCategoryById(id);
-
-        repository.delete(category);
-
-        return category;
-    }
-
-
-    @Override
     @Transactional(readOnly = true)
     public Page<Category> getSubcategories(Long id, int pageNo)
     {
@@ -100,7 +51,7 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     @Transactional
     public Category addSubCategory(Long categoryId, Long parentId)
     {
-        var subCategory = findCategoryById(categoryId);
+        var subCategory = findById(categoryId);
 
         subCategory.setParentCategoryId(parentId);
 
@@ -110,7 +61,7 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
 
     @Override
     public Category removeSubCategory(Long id) {
-        var subCategory = findCategoryById(id);
+        var subCategory = findById(id);
 
         repository.delete(subCategory);
 

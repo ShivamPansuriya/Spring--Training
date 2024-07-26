@@ -2,6 +2,7 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.model.Vendor;
+import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.repository.VendorRepository;
 import org.apache.poi.ss.usermodel.Cell;
@@ -9,7 +10,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +24,12 @@ public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,
     private final String[] COLUMN_HEADING = new String[]{"Product Name","Order Quantity","User Name","User Address","Remaining Quantity", "Total Earn", "Order Status"};
 
     private static final Logger log = LoggerFactory.getLogger(VendorServiceImpl.class);
+
     @Autowired
     VendorRepository repository;
 
     @Autowired
-    ModelMapper mapper;
+    EntityMapper<Vendor,VendorDTO> mapper;
 
 
     public byte[] generateAnalysis(Long vendorId)
@@ -69,6 +70,7 @@ public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,
         catch (Exception e)
         {
             log.error(e.getMessage());
+
             throw new ApiException("Unable to generate response");
         }
     }

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
+//@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class InventoryServiceImpl extends AbstractGenericService<Inventory, InventoryDTO, Long> implements InventoryService
 {
     @Autowired
@@ -27,38 +27,12 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private ModelMapper mapper;
-
-//    @Override
-//    public List<InventoryDTO> inventories()
-//    {
-//        var inventories = inventoryRepository.findAll();
-//
-//        return inventories.stream().map(inventory-> mapper.map(inventory,InventoryDTO.class)).toList();
-//    }
-
     @Override
     public List<Inventory> findLowStockInventories(int threshold, Long vendorId)
     {
         return inventoryRepository.findLowStockInventories(threshold, vendorId);
 
     }
-
-    public Inventory findInventoryById(Long id)
-    {
-        return inventoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory", "id" , id));
-    }
-
-//    @Override
-//    @Cacheable
-//    public InventoryDTO getInventoryById(Long id)
-//    {
-//        var inventory = findInventoryById(id);
-//
-//        return mapper.map(inventory,InventoryDTO.class);
-//    }
 
     @Override
     @Transactional
@@ -81,10 +55,9 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
 
     @Override
     @Transactional
-    @CachePut
     public Inventory update(Long id, InventoryDTO inventoryDetails)
     {
-        var inventory = findInventoryById(id);
+        var inventory = findById(id);
 
         inventory.setQuantity(inventoryDetails.getQuantity());
 
@@ -92,21 +65,6 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
 
         return inventoryRepository.save(inventory);
     }
-
-    @Override
-    @Transactional
-    @CacheEvict
-    public Inventory delete(Long id)
-    {
-        Inventory inventory = findInventoryById(id);
-
-//        inventory.getProduct().setInventory(null);
-
-        inventoryRepository.delete(inventory);
-
-        return inventory;
-    }
-
 
     @Override
     public Inventory getInventoryByProduct(Long productId)

@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseEntity<ID extends Serializable>
+public abstract class BaseEntity<ID extends Long>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

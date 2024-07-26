@@ -82,20 +82,6 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
     }
 
     @Override
-    @Transactional
-    public Product update(Long productId, ProductDTO productDTO) {
-        var product = findById(productId);
-
-        product.setName(productDTO.getName());
-
-        product.setPrice(productDTO.getPrice());
-
-        product.setDescription(productDTO.getDescription());
-
-        return productRepository.save(product);
-    }
-
-    @Override
     public Page<TopSellingProductDTO> getTopSellingProducts(int limit, int pageNo)
     {
         var list = productRepository.findTopSellingProducts(limit, PageRequest.of(pageNo,10));

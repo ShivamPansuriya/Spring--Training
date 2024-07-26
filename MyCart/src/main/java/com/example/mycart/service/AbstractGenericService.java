@@ -31,7 +31,6 @@ public abstract class AbstractGenericService<T extends BaseEntity<Long>, D exten
     }
 
     @Override
-    @Transactional(readOnly = true)
     public T findById(ID id) {
         return getRepository().findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(getEntityClass().getSimpleName(), "id", (Long) id));

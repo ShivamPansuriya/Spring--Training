@@ -40,7 +40,7 @@ public class CartServiceImpl implements CartService
     @Transactional
     public Cart findCartByUser(Long userId)
     {
-        var user = userService.findUserById(userId);
+        var user = userService.findById(userId);
 
         return cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> {

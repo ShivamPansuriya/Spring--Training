@@ -28,7 +28,7 @@ public abstract class AbstractGenericController<T extends BaseEntity<Long>,D ext
     public ResponseEntity<Page<D>> getAll(@RequestParam(defaultValue = "0", required = false) int pageNo)
     {
         var result = getService().findAll(pageNo);
-        return new ResponseEntity<>(getMapper().toDTOs(result,pageNo), HttpStatus.CREATED);
+        return new ResponseEntity<>(getMapper().toDTOs(result,pageNo), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -36,7 +36,7 @@ public abstract class AbstractGenericController<T extends BaseEntity<Long>,D ext
     {
         var result = getService().findById(id);
 
-        return new ResponseEntity<>(getMapper().toDTO(result,pageNo), HttpStatus.CREATED);
+        return new ResponseEntity<>(getMapper().toDTO(result,pageNo), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -44,7 +44,7 @@ public abstract class AbstractGenericController<T extends BaseEntity<Long>,D ext
     {
         var result = getService().delete(id);
 
-        return new ResponseEntity<>(getMapper().toDTO(result,pageNo), HttpStatus.CREATED);
+        return new ResponseEntity<>(getMapper().toDTO(result,pageNo), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -52,6 +52,6 @@ public abstract class AbstractGenericController<T extends BaseEntity<Long>,D ext
     {
         var result = getService().update(id,dto);
 
-        return new ResponseEntity<>(getMapper().toDTO(result,pageNo), HttpStatus.CREATED);
+        return new ResponseEntity<>(getMapper().toDTO(result,pageNo), HttpStatus.OK);
     }
 }

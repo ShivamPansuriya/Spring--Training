@@ -50,7 +50,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Transactional
     public Order create(Long userId)
     {
-        var user = userService.findUserById(userId);
+        var user = userService.findById(userId);
 
         var cartItems = cartService.getCartItems(userId);
 
@@ -87,7 +87,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Transactional
     public List<Order> getOrdersByUser(Long userId)
     {
-        var user = userService.findUserById(userId);
+        var user = userService.findById(userId);
 
         return repository.findByUserIdOrderByOrderDateDesc(user.getId());
     }
@@ -96,7 +96,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Transactional
     public Page<Order> getOrdersByUser(Long userId, int pageNo)
     {
-        var user = userService.findUserById(userId);
+        var user = userService.findById(userId);
 
         return repository.findByUserIdOrderByOrderDateDesc(user.getId(), PageRequest.of(pageNo,10));
 
