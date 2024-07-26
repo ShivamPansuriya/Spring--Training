@@ -1,15 +1,10 @@
 package com.example.mycart.service;
 
-import com.example.mycart.exception.ApiException;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
 import com.example.mycart.payloads.CategoryDTO;
 import com.example.mycart.repository.CategoryRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

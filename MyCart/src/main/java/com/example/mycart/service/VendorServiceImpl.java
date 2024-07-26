@@ -2,7 +2,6 @@ package com.example.mycart.service;
 
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.model.Vendor;
-import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.repository.VendorRepository;
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,10 +26,6 @@ public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,
 
     @Autowired
     VendorRepository repository;
-
-    @Autowired
-    EntityMapper<Vendor,VendorDTO> mapper;
-
 
     public byte[] generateAnalysis(Long vendorId)
     {

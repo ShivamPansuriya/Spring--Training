@@ -1,6 +1,5 @@
 package com.example.mycart.payloads;
 
-import com.example.mycart.model.NamedEntity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

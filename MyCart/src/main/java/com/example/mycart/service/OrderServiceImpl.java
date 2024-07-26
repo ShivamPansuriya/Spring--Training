@@ -9,11 +9,7 @@ import com.example.mycart.payloads.OrderDTO;
 import com.example.mycart.repository.OrderItemsRepository;
 import com.example.mycart.repository.OrderRepository;
 import com.example.mycart.utils.OrderStatus;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
+//@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Long> implements OrderService
 {
     @Autowired
@@ -104,7 +100,6 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
     @Override
     @Transactional
-    @CachePut
     public Order updateOrderStatus(Long orderId, OrderStatus status)
     {
         var order = findById(orderId);
@@ -127,7 +122,6 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
     @Override
     @Transactional
-    @CacheEvict
     public Order cancelOrder(Long orderId)
     {
         var order = findById(orderId);
@@ -143,7 +137,6 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     }
 
     @Override
-    @CachePut
     public Order removeOrderItem(Long orderId, Long productId)
     {
         var order = findById(orderId);

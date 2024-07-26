@@ -3,7 +3,6 @@ package com.example.mycart.controller;
 import com.example.mycart.model.User;
 import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.modelmapper.UserMapper;
-import com.example.mycart.modelmapper.VendorMapper;
 import com.example.mycart.payloads.UserDTO;
 import com.example.mycart.service.UserService;
 import com.example.mycart.service.GenericService;
