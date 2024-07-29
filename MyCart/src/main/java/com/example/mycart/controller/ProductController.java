@@ -1,5 +1,6 @@
 package com.example.mycart.controller;
 
+import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Product;
 import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.modelmapper.ProductMapper;
@@ -7,6 +8,7 @@ import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.TopSellingProductDTO;
 import com.example.mycart.service.ProductService;
 import com.example.mycart.service.GenericService;
+import com.example.mycart.utils.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,9 +29,20 @@ public class ProductController extends AbstractGenericController<Product,Product
     @Autowired
     private ProductMapper<Product,ProductDTO> mapper;
 
+    @Autowired
+    private Validator validator;
+
     @PostMapping("/categories/{categoryId}/vendors/{vendorId}")
     public ResponseEntity<ProductDTO> createProduct(@PathVariable Long categoryId, @PathVariable Long vendorId,@RequestBody ProductDTO productDTO)
     {
+        if(validator.validateCategory(categoryId))
+        {
+            throw new ResourceNotFoundException("category","id",categoryId);
+        }
+        if(validator.validateVendor(vendorId))
+        {
+            throw new ResourceNotFoundException("Vendor","id",vendorId);
+        }
         var response = service.create(mapper.toEntity(productDTO), categoryId,vendorId);
 
         return new ResponseEntity<>(mapper.toDTO(response,0), HttpStatus.CREATED);
@@ -38,6 +51,10 @@ public class ProductController extends AbstractGenericController<Product,Product
     @GetMapping("/categories/{categoryId}")
     public ResponseEntity<Page<ProductDTO>> getProductsByCategory(@PathVariable Long categoryId,@RequestParam(defaultValue = "0") int pageNo)
     {
+        if(validator.validateCategory(categoryId))
+        {
+            throw new ResourceNotFoundException("category","id",categoryId);
+        }
         var products = service.getProductByCategory(categoryId,pageNo);
 
         var response = products.map(product ->mapper.toDTO(product,pageNo));

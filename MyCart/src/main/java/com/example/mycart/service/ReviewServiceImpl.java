@@ -2,7 +2,9 @@ package com.example.mycart.service;
 
 import com.example.mycart.model.Review;
 import com.example.mycart.payloads.ReviewDTO;
+import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.ReviewRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,12 +19,6 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
 {
     @Autowired
     private ReviewRepository repository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ProductService productService;
 
     @Override
     public Page<Review> getReviewsByProductId(Long productId,int pageNo)
@@ -39,9 +35,9 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
     @Override
     @Transactional
     public Review create(Review review, Long userId, Long productId) {
-        review.setUserId(userService.findById(userId).getId());
+        review.setUserId(userId);
 
-        review.setProductId(productService.findById(productId).getId());
+        review.setProductId(productId);
 
         return repository.save(review);
     }
@@ -62,7 +58,7 @@ public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO,
     }
 
     @Override
-    protected JpaRepository<Review, Long> getRepository() {
+    protected SoftDeletesRepository<Review, Long> getRepository() {
         return repository;
     }
 

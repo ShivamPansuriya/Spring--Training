@@ -1,5 +1,6 @@
 package com.example.mycart.controller;
 
+import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.User;
 import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.modelmapper.UserMapper;
@@ -25,6 +26,10 @@ public class UserController extends AbstractGenericController<User,UserDTO,Long>
     public ResponseEntity<UserDTO> getUserByName(@PathVariable String name)
     {
         var user = service.getUserByName(name);
+
+        if(user==null)
+            throw new ResourceNotFoundException("User","name",name);
+
         return new ResponseEntity<>(mapper.toDTO(user,0), HttpStatus.OK);
     }
 

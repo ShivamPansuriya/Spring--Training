@@ -3,8 +3,10 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Inventory;
 import com.example.mycart.payloads.InventoryDTO;
+import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.InventoryRepository;
 import com.example.mycart.repository.ProductRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -14,14 +16,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-//@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class InventoryServiceImpl extends AbstractGenericService<Inventory, InventoryDTO, Long> implements InventoryService
 {
     @Autowired
     private InventoryRepository inventoryRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
 
     @Override
     public List<Inventory> findLowStockInventories(int threshold, Long vendorId)
@@ -34,13 +32,10 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
     @Transactional
     public Inventory createInventory(Inventory inventory, Long productId)
     {
-        var product = productRepository.findById(productId)
-                .orElseThrow(()-> new ResourceNotFoundException("Product","id",productId));
-
-        return inventoryRepository.findByProductId(product.getId())
+        return inventoryRepository.findByProductIdAndDeleted(productId,false)
                 .orElseGet(()->{
 
-                    inventory.setProductId(product.getId());
+                    inventory.setProductId(productId);
 
                     inventory.setUpdatedTime(LocalDateTime.now());
 
@@ -65,16 +60,11 @@ public class InventoryServiceImpl extends AbstractGenericService<Inventory, Inve
     @Override
     public Inventory getInventoryByProduct(Long productId)
     {
-        var product = productRepository.findById(productId)
-                .orElseThrow(()-> new ResourceNotFoundException("Product","id",productId));
-
-        return inventoryRepository.findByProductId(product.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory for product " , "id",productId));
-
+        return inventoryRepository.findByProductIdAndDeleted(productId,false).orElse(null);
     }
 
     @Override
-    protected JpaRepository<Inventory, Long> getRepository() {
+    protected SoftDeletesRepository<Inventory, Long> getRepository() {
         return inventoryRepository;
     }
 

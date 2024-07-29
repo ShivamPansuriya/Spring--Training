@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CartRepository extends BaseRepository<Cart,Long>
+public interface CartRepository extends SoftDeletesRepository<Cart,Long>
 {
-    Optional<Cart> findByUserId(Long userId);
+    Optional<Cart> findByUserIdAndDeleted(Long userId, boolean isDeleted);
 
 }

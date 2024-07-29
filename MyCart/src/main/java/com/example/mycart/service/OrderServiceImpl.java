@@ -6,9 +6,14 @@ import com.example.mycart.model.CartItem;
 import com.example.mycart.model.Order;
 import com.example.mycart.model.OrderItems;
 import com.example.mycart.payloads.OrderDTO;
+import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.OrderItemsRepository;
 import com.example.mycart.repository.OrderRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import com.example.mycart.utils.OrderStatus;
+import com.example.mycart.utils.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,12 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 //@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
 public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Long> implements OrderService
 {
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private OrderRepository repository;
 
@@ -42,17 +51,37 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Autowired
     private UserService userService;
 
+    private final ReentrantLock orderCreationLock = new ReentrantLock(true);
+
     @Override
     @Transactional
     public Order create(Long userId)
     {
-        var user = userService.findById(userId);
-
         var cartItems = cartService.getCartItems(userId);
 
-        var validProducts = cartItems.stream()
-                .filter(cartItem -> (inventoryService.getInventoryByProduct(cartItem.getProductId()).getQuantity() - cartItem.getQuantity())>0)
-                .toList();
+        orderCreationLock.lock();
+
+        List<CartItem> validProducts;
+
+        try {
+            validProducts = cartItems.stream()
+                    .filter(cartItem ->
+                    {
+                        var inventory = inventoryService.getInventoryByProduct(cartItem.getProductId());
+                        if(inventory==null)
+                            return false;
+                        var remains = inventory.getQuantity() - cartItem.getQuantity();
+                        if (remains > 0) {
+                            inventory.setQuantity(remains);
+                            return true;
+                        }
+                        return false;
+                    })
+                    .toList();
+        }
+        finally {
+            orderCreationLock.unlock();
+        }
 
         if (validProducts.isEmpty()) {
             throw new ApiException("Cannot create an order with an empty cart");
@@ -60,21 +89,26 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
         var order = new Order();
 
-        order.setUserId(user.getId());
+        order.setUserId(userId);
 
         order.setOrderDate(LocalDateTime.now());
 
         order.setStatus(OrderStatus.PENDING);
 
+        order.setTotalAmount(calculateTotalAmount(validProducts));
+
         var savedOrder = repository.save(order);
 
-        List<OrderItems> orderItems = validProducts.stream()
-                .map(cartItem -> createOrderItem(order, cartItem))
-                .toList();
+        CompletableFuture.supplyAsync(()->
+        {
+            validProducts.forEach(cartItem -> createOrderItem(order, cartItem));
 
-        order.setTotalAmount(calculateTotalAmount(orderItems));
+            log.debug("Long order process Complete");
 
-        cartService.clearCart(userId);
+            cartService.clearCart(userId);
+
+            return true;
+        });
 
         return savedOrder;
     }
@@ -92,9 +126,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Transactional
     public Page<Order> getOrdersByUser(Long userId, int pageNo)
     {
-        var user = userService.findById(userId);
-
-        return repository.findByUserIdOrderByOrderDateDesc(user.getId(), PageRequest.of(pageNo,10));
+        return repository.findByUserIdOrderByOrderDateDesc(userId, PageRequest.of(pageNo,10));
 
     }
 
@@ -146,9 +178,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
             throw new ApiException("cannot remove item that is shipped,ordered or cancelled");
         }
 
-        var product = productService.findById(productId);
-
-        var orderItem = orderItemsRepository.findByOrderIdAndProductId(order.getId(),product.getId())
+        var orderItem = orderItemsRepository.findByOrderIdAndProductId(orderId,productId)
                 .orElseThrow(()-> new ResourceNotFoundException("OrderItem", "id", productId));
 
         orderItemsRepository.delete(orderItem);
@@ -167,24 +197,24 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
         return orderItemsRepository.findOrderItemsByOrder(orderId,PageRequest.of(pageNo,10));
     }
 
-    private OrderItems createOrderItem(Order order, CartItem cartItem)
+    private void createOrderItem(Order order, CartItem cartItem)
     {
         OrderItems orderItem = new OrderItems();
         orderItem.setOrderId(order.getId());
         orderItem.setProductId(cartItem.getProductId());
         orderItem.setQuantity(cartItem.getQuantity());
         orderItem.setPrice(productService.findById(cartItem.getProductId()).getPrice());
-        return orderItemsRepository.save(orderItem);
+        orderItemsRepository.save(orderItem);
     }
 
-    private BigDecimal calculateTotalAmount(List<OrderItems> orderItems) {
+    private BigDecimal calculateTotalAmount(List<CartItem> orderItems) {
         return orderItems.stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> productService.findById(item.getProductId()).getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
-    protected JpaRepository<Order, Long> getRepository() {
+    protected SoftDeletesRepository<Order, Long> getRepository() {
         return repository;
     }
 

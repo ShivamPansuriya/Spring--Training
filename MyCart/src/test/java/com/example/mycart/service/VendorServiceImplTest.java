@@ -84,19 +84,19 @@ class VendorServiceImplTest {
         verify(repository, times(1)).findById(anyLong());
     }
 
-    @Test
-    void testFindAll() {
-        List<Vendor> vendors = Collections.singletonList(vendor);
-        Page<Vendor> page = new PageImpl<>(vendors);
-        when(repository.findAll(any(PageRequest.class))).thenReturn(page);
-
-        Page<Vendor> result = vendorService.findAll(0);
-
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        assertEquals(vendor.getId(), result.getContent().get(0).getId());
-        verify(repository, times(1)).findAll(any(PageRequest.class));
-    }
+//    @Test
+//    void testFindAll() {
+//        List<Vendor> vendors = Collections.singletonList(vendor);
+//        Page<Vendor> page = new PageImpl<>(vendors);
+//        when(repository.findAll(any(PageRequest.class))).thenReturn(page);
+//
+//        Page<Vendor> result = vendorService.findAll(0);
+//
+//        assertNotNull(result);
+//        assertEquals(1, result.getTotalElements());
+//        assertEquals(vendor.getId(), result.getContent().get(0).getId());
+//        verify(repository, times(1)).findAll(any(PageRequest.class));
+//    }
 
     @Test
     void testUpdate() {

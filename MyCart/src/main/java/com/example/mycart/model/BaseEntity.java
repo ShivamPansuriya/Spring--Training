@@ -28,4 +28,6 @@ public abstract class BaseEntity<ID extends Long>
     @UpdateTimestamp
     @Column(nullable = false)
     protected LocalDateTime updatedTime;
+
+    protected  boolean deleted;
 }

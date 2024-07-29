@@ -3,6 +3,8 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.User;
 import com.example.mycart.payloads.UserDTO;
+import com.example.mycart.repository.BaseRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import com.example.mycart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,11 +20,11 @@ public class UserServiceImpl extends AbstractGenericService<User, UserDTO, Long>
     public User getUserByName(String name)
     {
         return repository.findByName(name)
-                .orElseThrow(()-> new ResourceNotFoundException("User","name",name));
+                .orElse(null);
     }
 
     @Override
-    protected JpaRepository<User, Long> getRepository() {
+    protected SoftDeletesRepository<User, Long> getRepository() {
         return repository;
     }
 

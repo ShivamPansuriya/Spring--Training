@@ -3,6 +3,8 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.BaseEntity;
 import com.example.mycart.payloads.BaseDTO;
+import com.example.mycart.repository.BaseRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +14,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 //@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
-public abstract class AbstractGenericService<T extends BaseEntity<Long>, D extends BaseDTO, ID> implements GenericService<T,D, ID> {
+public abstract class AbstractGenericService<T extends BaseEntity<Long>, D extends BaseDTO, ID>
+        implements GenericService<T,D, ID> {
 
     @Autowired
     protected ModelMapper mapper;
@@ -20,7 +23,7 @@ public abstract class AbstractGenericService<T extends BaseEntity<Long>, D exten
     @Value("${myCart.page.size}")
     private int pageSize;
 
-    protected abstract JpaRepository<T, ID> getRepository();
+    protected abstract SoftDeletesRepository<T, ID> getRepository();
     protected abstract Class<T> getEntityClass();
     protected abstract Class<D> getDtoClass();
 
@@ -33,7 +36,7 @@ public abstract class AbstractGenericService<T extends BaseEntity<Long>, D exten
     @Override
     public T findById(ID id) {
         return getRepository().findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(getEntityClass().getSimpleName(), "id", (Long) id));
+                .orElse(null);
     }
 
     @Override
@@ -47,8 +50,8 @@ public abstract class AbstractGenericService<T extends BaseEntity<Long>, D exten
     @Override
     @Transactional
     public T update(ID id, D dto) {
-        T existingEntity = getRepository().findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(getEntityClass().getSimpleName(), "id", (Long) id));
+        T existingEntity = findById(id);
+
         mapper.map(dto, existingEntity);
 
         existingEntity.setId((Long) id);
@@ -59,8 +62,9 @@ public abstract class AbstractGenericService<T extends BaseEntity<Long>, D exten
     @Override
     @Transactional
     public T delete(ID id) {
-        T entity = getRepository().findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(getEntityClass().getSimpleName(), "id", (Long) id));
+
+        T entity = findById(id);
+
         getRepository().delete(entity);
 
         return entity;

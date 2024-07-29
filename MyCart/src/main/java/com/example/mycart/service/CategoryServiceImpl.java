@@ -3,7 +3,9 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
 import com.example.mycart.payloads.CategoryDTO;
+import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.CategoryRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,14 +25,14 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     {
         var category = findById(id);
 
-        var parentCategory = repository.findById(categoryDTO.getParentCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category","id", id));
+        var parentCategory = findById(categoryDTO.getParentCategoryId());
 
         category.setName(categoryDTO.getName());
 
         category.setDescription(categoryDTO.getDescription());
 
-        category.setParentCategoryId(parentCategory.getId());
+        if(parentCategory!=null)
+            category.setParentCategoryId(parentCategory.getId());
 
         return category;
     }
@@ -39,7 +41,7 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     @Transactional(readOnly = true)
     public Page<Category> getSubcategories(Long id, int pageNo)
     {
-        return repository.findCategoriesByParentCategoryIdEquals(id, PageRequest.of(pageNo,10));
+        return repository.findCategoriesByParentCategoryIdAndAndDeleted(id, false, PageRequest.of(pageNo,10));
     }
 
     @Override
@@ -55,7 +57,8 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     }
 
     @Override
-    public Category removeSubCategory(Long id) {
+    public Category removeSubCategory(Long id)
+    {
         var subCategory = findById(id);
 
         repository.delete(subCategory);
@@ -64,7 +67,7 @@ public class CategoryServiceImpl extends AbstractGenericService<Category,Categor
     }
 
     @Override
-    protected JpaRepository<Category, Long> getRepository() {
+    protected SoftDeletesRepository<Category, Long> getRepository() {
         return repository;
     }
 

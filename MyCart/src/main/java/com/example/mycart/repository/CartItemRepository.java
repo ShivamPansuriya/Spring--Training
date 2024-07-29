@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CartItemRepository extends BaseRepository<CartItem,Long>
+public interface CartItemRepository extends SoftDeletesRepository<CartItem,Long>
 {
-    Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId);
-    List<CartItem> findCartItemsByCartId(Long id);
+    Optional<CartItem> findByCartIdAndProductIdAndDeleted(Long cartId, Long productId, boolean isDeleted);
+    List<CartItem> findCartItemsByCartIdAndDeleted(Long id,boolean isDeleted);
+    default void deleteCartItemsByCartId(Long cartId)
+    {
+
+    }
 }

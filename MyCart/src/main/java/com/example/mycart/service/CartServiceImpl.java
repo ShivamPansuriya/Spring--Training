@@ -6,7 +6,6 @@ import com.example.mycart.model.CartItem;
 import com.example.mycart.repository.CartItemRepository;
 import com.example.mycart.repository.CartRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,22 +26,10 @@ public class CartServiceImpl implements CartService
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private ModelMapper mapper;
-
     @Override
-    @Transactional
     public Cart findCartByUser(Long userId)
     {
-        var user = userService.findById(userId);
-
-        return cartRepository.findByUserId(user.getId())
+        return cartRepository.findByUserIdAndDeleted(userId,false)
                 .orElseGet(() -> {
                     log.debug("creating new cart");
 
@@ -60,9 +47,7 @@ public class CartServiceImpl implements CartService
     public CartItem addItemToCart(Long userId, Long productId, int quantity) {
         var cart = findCartByUser(userId);
 
-        var product = productService.findById(productId);
-
-        var existingItem = cartItemRepository.findByCartIdAndProductId(cart.getId(),product.getId());
+        var existingItem = cartItemRepository.findByCartIdAndProductIdAndDeleted(cart.getId(),productId,false);
 
         CartItem savedItem;
 
@@ -80,11 +65,9 @@ public class CartServiceImpl implements CartService
 
             newItem.setCartId(cart.getId());
 
-            newItem.setProductId(product.getId());
+            newItem.setProductId(productId);
 
             newItem.setQuantity(quantity);
-
-//            cart.getCartItemsId().add(newItem);
 
             savedItem = cartItemRepository.save(newItem);
         }
@@ -96,8 +79,7 @@ public class CartServiceImpl implements CartService
     @CacheEvict
     public CartItem updateCartItemQuantity(Long userId, Long cartItemId, int quantity)
     {
-        var cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new ResourceNotFoundException("CartItem","id",cartItemId));
+        var cartItem = cartItemRepository.findById(cartItemId).get();
 
         cartItem.setQuantity(quantity);
 
@@ -110,8 +92,7 @@ public class CartServiceImpl implements CartService
     @CacheEvict
     public CartItem removeItemFromCart(Long userId,Long cartItemId)
     {
-        var cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new ResourceNotFoundException("CartItem","id",cartItemId));
+        var cartItem = cartItemRepository.findById(cartItemId).get();
 
         cartItemRepository.delete(cartItem);
 
@@ -124,7 +105,13 @@ public class CartServiceImpl implements CartService
     public Cart clearCart(Long userId)
     {
         var cart = findCartByUser(userId);
+
+        var cartItems = getCartItems(userId);
+
+        cartItems.forEach(cartItem -> cartItemRepository.delete(cartItem));
+
         cartRepository.delete(cart);
+
         return cart;
     }
 
@@ -133,6 +120,6 @@ public class CartServiceImpl implements CartService
     {
         var cart = findCartByUser(userId);
 
-        return cartItemRepository.findCartItemsByCartId(cart.getId());
+        return cartItemRepository.findCartItemsByCartIdAndDeleted(cart.getId(),false);
     }
 }

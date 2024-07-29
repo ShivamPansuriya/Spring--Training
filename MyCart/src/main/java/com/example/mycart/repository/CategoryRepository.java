@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CategoryRepository extends BaseRepository<Category,Long>
+public interface CategoryRepository extends SoftDeletesRepository<Category,Long>
 {
-    Page<Category> findCategoriesByParentCategoryIdEquals(Long parentId, Pageable page);
+    Page<Category> findCategoriesByParentCategoryIdAndAndDeleted(Long parentId,boolean isDeleted, Pageable page);
 }

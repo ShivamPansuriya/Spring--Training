@@ -4,9 +4,7 @@ import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Product;
 import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.TopSellingProductDTO;
-import com.example.mycart.repository.CategoryRepository;
-import com.example.mycart.repository.ProductRepository;
-import com.example.mycart.repository.VendorRepository;
+import com.example.mycart.repository.*;
 import com.example.mycart.utils.GenericSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -28,32 +26,20 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
     private ProductRepository productRepository;
 
     @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private VendorRepository vendorRepository;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     @Override
     public Product create(Product product, Long categoryId, Long vendorId)
     {
-        var category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
-
-        var vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor", "vendorId", vendorId));
-
-        return productRepository.findByNameAndCategoryAndVendor(product.getName(),category.getId(),vendor.getId())
+        return productRepository.findByNameAndCategoryAndVendor(product.getName(),categoryId,vendorId)
                 .orElseGet(()->{
                     log.info("creating new product");
 
                     var newProduct = modelMapper.map(product, Product.class);
 
-                    newProduct.setCategoryId(category.getId());
+                    newProduct.setCategoryId(categoryId);
 
-                    newProduct.setVendorId(vendor.getId());
+                    newProduct.setVendorId(vendorId);
 
                     return productRepository.save(newProduct);
                 });
@@ -68,10 +54,7 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
     @Override
     public Page<Product> getProductByCategory(Long categoryId, int pageNo)
     {
-        var category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
-
-        return productRepository.findByCategoryOrderByPriceAsc(category.getId(),PageRequest.of(pageNo,10));
+        return productRepository.findByCategoryOrderByPriceAsc(categoryId,PageRequest.of(pageNo,10));
     }
 
     @Override
@@ -98,7 +81,7 @@ public class ProductServiceImpl extends AbstractGenericService<Product,ProductDT
     }
 
     @Override
-    protected JpaRepository<Product, Long> getRepository() {
+    protected SoftDeletesRepository<Product, Long> getRepository() {
         return productRepository;
     }
 

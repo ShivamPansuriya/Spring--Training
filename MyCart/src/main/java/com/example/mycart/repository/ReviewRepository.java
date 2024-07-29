@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ReviewRepository extends BaseRepository<Review,Long>
+public interface ReviewRepository extends SoftDeletesRepository<Review,Long>
 {
     Page<Review> findByProductId(Long productId, Pageable page);
 

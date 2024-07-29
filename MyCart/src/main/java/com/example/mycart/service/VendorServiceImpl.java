@@ -3,6 +3,8 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.model.Vendor;
 import com.example.mycart.payloads.VendorDTO;
+import com.example.mycart.repository.BaseRepository;
+import com.example.mycart.repository.SoftDeletesRepository;
 import com.example.mycart.repository.VendorRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -71,7 +73,7 @@ public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,
     }
 
     @Override
-    protected JpaRepository<Vendor, Long> getRepository() {
+    protected SoftDeletesRepository<Vendor, Long> getRepository() {
         return repository;
     }
 

@@ -30,6 +30,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         query.where(
                 cb.and(
                     cb.equal(product.get("categoryId"),category.get("id")),
+                        cb.equal(product.get("deleted"), false),
                 cb.or(
                     cb.equal(product.get("categoryId"), categoryId),
                     cb.equal(category.get("parentCategoryId"), categoryId)
@@ -55,7 +56,8 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         query.where(cb.and(
                 cb.equal(root.get("name"), name),
                 cb.equal(root.get("categoryId"), categoryId),
-                cb.equal(root.get("vendorId"), vendorId)
+                cb.equal(root.get("vendorId"), vendorId),
+                cb.equal(root.get("deleted"), false)
         ));
 
         var results = entityManager.createQuery(query)
@@ -82,7 +84,13 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 cb.sum(cb.prod(orderItem.get("price"), orderItem.get("quantity"))).alias("total_revenue")
                 );
 
-        query.where(cb.equal(product.get("id"), orderItem.get("productId")));
+        query.where(
+                cb.and(
+                    cb.equal(product.get("id"), orderItem.get("productId")),
+                        cb.equal(product.get("deleted"), false),
+                        cb.equal(orderItem.get("deleted"), false)
+                )
+        );
         query.groupBy(product.get("id"), product.get("name"));
         query.orderBy(cb.desc(cb.sum(orderItem.get("quantity"))));
 

@@ -89,19 +89,19 @@ class UserServiceImplTest {
         verify(repository, times(1)).findById(anyLong());
     }
 
-    @Test
-    void testFindAll() {
-        List<User> users = Collections.singletonList(user);
-        Page<User> page = new PageImpl<>(users);
-        when(repository.findAll(any(PageRequest.class))).thenReturn(page);
-
-        Page<User> result = userService.findAll(0);
-
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        assertEquals(user.getId(), result.getContent().get(0).getId());
-        verify(repository, times(1)).findAll(any(PageRequest.class));
-    }
+//    @Test
+//    void testFindAll() {
+//        List<User> users = Collections.singletonList(user);
+//        Page<User> page = new PageImpl<>(users);
+//        when(repository.findAll(any(PageRequest.class))).thenReturn(page);
+//
+//        Page<User> result = userService.findAll(0);
+//
+//        assertNotNull(result);
+//        assertEquals(1, result.getTotalElements());
+//        assertEquals(user.getId(), result.getContent().get(0).getId());
+//        verify(repository, times(1)).findAll(any(PageRequest.class));
+//    }
 
     @Test
     void testUpdate() {

@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 
 @Repository
-public interface ProductRepository extends BaseRepository<Product,Long> , ProductRepositoryCustom
+public interface ProductRepository extends SoftDeletesRepository<Product,Long> , ProductRepositoryCustom
 {
     Page<Product> findByNameContainingIgnoreCase(String keyWord, Pageable page);
 
     Page<Product> findProductsByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable page);
+
 }

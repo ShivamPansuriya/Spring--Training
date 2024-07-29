@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends BaseRepository<User,Long> {
+public interface UserRepository extends SoftDeletesRepository<User,Long> {
     Optional<User> findByName(String name);
 }

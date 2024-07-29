@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends BaseRepository<Order,Long>
+public interface OrderRepository extends SoftDeletesRepository<Order,Long>
 {
     List<Order> findByUserIdOrderByOrderDateDesc(Long userId);
 

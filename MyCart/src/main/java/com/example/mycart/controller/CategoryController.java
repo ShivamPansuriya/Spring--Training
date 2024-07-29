@@ -1,11 +1,13 @@
 package com.example.mycart.controller;
 
+import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
 import com.example.mycart.modelmapper.CategoryMapper;
 import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.payloads.CategoryDTO;
 import com.example.mycart.service.CategoryService;
 import com.example.mycart.service.GenericService;
+import com.example.mycart.utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,15 +24,36 @@ public class CategoryController extends AbstractGenericController<Category,Categ
     @Autowired
     private CategoryMapper<Category,CategoryDTO> mapper;
 
+    @Autowired
+    private Validator validator;
+
     @PostMapping("/{parentId}/{subId}")
-    public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long parentId, @PathVariable Long subId) {
+    public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long parentId, @PathVariable Long subId)
+    {
+        if(validator.validateCategory(parentId))
+        {
+            throw new ResourceNotFoundException("category","id",parentId);
+        }
+
+        if(validator.validateCategory(subId))
+        {
+            throw new ResourceNotFoundException("category","id",subId);
+        }
+
         var updatedCategory = service.addSubCategory(subId,parentId);
+
         return new ResponseEntity<>(mapper.toDTO(updatedCategory,0),HttpStatus.CREATED);
     }
 
     @PutMapping("/subcategories/{subId}")
-    public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long subId) {
+    public ResponseEntity<CategoryDTO> removeSubCategory(@PathVariable Long subId) {
+        if(validator.validateCategory(subId))
+        {
+            throw new ResourceNotFoundException("category","id",subId);
+        }
+
         var updatedCategory = service.removeSubCategory(subId);
+
         return ResponseEntity.ok(mapper.toDTO(updatedCategory,0));
     }
 
