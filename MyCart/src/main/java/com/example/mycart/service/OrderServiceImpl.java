@@ -12,6 +12,7 @@ import com.example.mycart.repository.OrderRepository;
 import com.example.mycart.repository.SoftDeletesRepository;
 import com.example.mycart.utils.OrderStatus;
 import com.example.mycart.utils.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 //@CacheConfig(cacheNames = "mycache", keyGenerator = "customKeyGenerator")
+@Slf4j
 public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Long> implements OrderService
 {
-    private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private OrderRepository repository;
 
@@ -47,9 +48,6 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
 
     @Autowired
     private InventoryService inventoryService;
-
-    @Autowired
-    private UserService userService;
 
     private final ReentrantLock orderCreationLock = new ReentrantLock(true);
 
@@ -117,9 +115,7 @@ public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Lon
     @Transactional
     public List<Order> getOrdersByUser(Long userId)
     {
-        var user = userService.findById(userId);
-
-        return repository.findByUserIdOrderByOrderDateDesc(user.getId());
+        return repository.findByUserIdOrderByOrderDateDesc(userId);
     }
 
     @Override
