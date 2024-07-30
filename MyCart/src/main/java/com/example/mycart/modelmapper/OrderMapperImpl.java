@@ -6,20 +6,22 @@ import com.example.mycart.payloads.OrderDTO;
 import com.example.mycart.payloads.OrderItemDTO;
 import com.example.mycart.service.OrderService;
 import com.example.mycart.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrderMapperImpl extends OrderMapper<Order, OrderDTO>
 {
-    @Autowired
-    OrderItemMapper<OrderItems, OrderItemDTO> orderItemMapper;
+    private final OrderItemMapper<OrderItems, OrderItemDTO> orderItemMapper;
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public OrderMapperImpl(OrderItemMapper<OrderItems, OrderItemDTO> orderItemMapper, OrderService orderService, UserService userService) {
+        this.orderItemMapper = orderItemMapper;
+        this.orderService = orderService;
+        this.userService = userService;
+    }
 
     @Override
     protected UserService getUserService() {

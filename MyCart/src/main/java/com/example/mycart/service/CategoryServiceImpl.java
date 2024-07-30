@@ -1,23 +1,22 @@
 package com.example.mycart.service;
 
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Category;
 import com.example.mycart.payloads.CategoryDTO;
-import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.CategoryRepository;
 import com.example.mycart.repository.SoftDeletesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CategoryServiceImpl extends AbstractGenericService<Category,CategoryDTO,Long> implements CategoryService
 {
-    @Autowired
-    private CategoryRepository repository;
+    private final CategoryRepository repository;
+
+    public CategoryServiceImpl(CategoryRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     @Transactional

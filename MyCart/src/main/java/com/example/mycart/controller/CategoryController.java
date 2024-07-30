@@ -8,36 +8,41 @@ import com.example.mycart.payloads.CategoryDTO;
 import com.example.mycart.service.CategoryService;
 import com.example.mycart.service.GenericService;
 import com.example.mycart.utils.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.mycart.constants.Constants.CATEGORY;
+import static com.example.mycart.constants.Constants.ID;
+
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController extends AbstractGenericController<Category,CategoryDTO,Long> {
 
-    @Autowired
-    private CategoryService service;
+    private final CategoryService service;
 
-    @Autowired
-    private CategoryMapper<Category,CategoryDTO> mapper;
+    private final CategoryMapper<Category,CategoryDTO> mapper;
 
-    @Autowired
-    private Validator validator;
+    private final Validator validator;
+
+    public CategoryController(CategoryService service, CategoryMapper<Category, CategoryDTO> mapper, Validator validator) {
+        this.service = service;
+        this.mapper = mapper;
+        this.validator = validator;
+    }
 
     @PostMapping("/{parentId}/{subId}")
     public ResponseEntity<CategoryDTO> addSubCategory(@PathVariable Long parentId, @PathVariable Long subId)
     {
         if(validator.validateCategory(parentId))
         {
-            throw new ResourceNotFoundException("category","id",parentId);
+            throw new ResourceNotFoundException(CATEGORY,ID,parentId);
         }
 
         if(validator.validateCategory(subId))
         {
-            throw new ResourceNotFoundException("category","id",subId);
+            throw new ResourceNotFoundException(CATEGORY,ID,subId);
         }
 
         var updatedCategory = service.addSubCategory(subId,parentId);
@@ -49,7 +54,7 @@ public class CategoryController extends AbstractGenericController<Category,Categ
     public ResponseEntity<CategoryDTO> removeSubCategory(@PathVariable Long subId) {
         if(validator.validateCategory(subId))
         {
-            throw new ResourceNotFoundException("category","id",subId);
+            throw new ResourceNotFoundException(CATEGORY,ID,subId);
         }
 
         var updatedCategory = service.removeSubCategory(subId);

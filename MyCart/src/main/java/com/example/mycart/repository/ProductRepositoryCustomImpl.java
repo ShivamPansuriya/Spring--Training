@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+import static com.example.mycart.constants.Constants.ID;
+
 @Repository
 public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
@@ -29,7 +31,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         query.select(product);
         query.where(
                 cb.and(
-                    cb.equal(product.get("categoryId"),category.get("id")),
+                    cb.equal(product.get("categoryId"),category.get(ID)),
                         cb.equal(product.get("deleted"), false),
                 cb.or(
                     cb.equal(product.get("categoryId"), categoryId),
@@ -78,7 +80,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         var orderItem = query.from(OrderItems.class);
 
         query.multiselect(
-                product.get("id"),
+                product.get(ID),
                 product.get("name"),
                 cb.sum(orderItem.get("quantity")).alias("total_quantity"),
                 cb.sum(cb.prod(orderItem.get("price"), orderItem.get("quantity"))).alias("total_revenue")
@@ -86,12 +88,12 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
         query.where(
                 cb.and(
-                    cb.equal(product.get("id"), orderItem.get("productId")),
+                    cb.equal(product.get(ID), orderItem.get("productId")),
                         cb.equal(product.get("deleted"), false),
                         cb.equal(orderItem.get("deleted"), false)
                 )
         );
-        query.groupBy(product.get("id"), product.get("name"));
+        query.groupBy(product.get(ID), product.get("name"));
         query.orderBy(cb.desc(cb.sum(orderItem.get("quantity"))));
 
         var result = entityManager.createQuery(query)

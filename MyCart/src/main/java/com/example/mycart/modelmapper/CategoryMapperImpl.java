@@ -4,17 +4,19 @@ import com.example.mycart.model.Category;
 import com.example.mycart.payloads.CategoryDTO;
 import com.example.mycart.service.CategoryService;
 import com.example.mycart.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CategoryMapperImpl extends CategoryMapper<Category,CategoryDTO>
 {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+
+    public CategoryMapperImpl(CategoryService categoryService, ProductService productService) {
+        this.categoryService = categoryService;
+        this.productService = productService;
+    }
 
     @Override
     protected CategoryService getCategoryService() {

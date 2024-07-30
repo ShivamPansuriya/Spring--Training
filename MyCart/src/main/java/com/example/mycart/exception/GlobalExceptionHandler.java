@@ -69,7 +69,4 @@ public class GlobalExceptionHandler
 
         return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-//    org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "inventory_product_id_key"
 }
-
-//DefaultMessageSourceResolvable

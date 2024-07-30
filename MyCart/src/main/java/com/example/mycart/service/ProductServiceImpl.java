@@ -1,6 +1,5 @@
 package com.example.mycart.service;
 
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Product;
 import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.TopSellingProductDTO;
@@ -8,10 +7,8 @@ import com.example.mycart.repository.*;
 import com.example.mycart.utils.GenericSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,11 +19,14 @@ import java.math.BigDecimal;
 public class ProductServiceImpl extends AbstractGenericService<Product,ProductDTO, Long> implements ProductService
 {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    public ProductServiceImpl(ProductRepository productRepository, ModelMapper modelMapper) {
+        this.productRepository = productRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public Product create(Product product, Long categoryId, Long vendorId)

@@ -3,14 +3,16 @@ package com.example.mycart.modelmapper;
 import com.example.mycart.model.Inventory;
 import com.example.mycart.payloads.InventoryDTO;
 import com.example.mycart.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class InventoryMapperImpl extends InventoryMapper<Inventory,InventoryDTO>
 {
-    @Autowired
-    private ProductService service;
+    private final ProductService service;
+
+    public InventoryMapperImpl(ProductService service) {
+        this.service = service;
+    }
 
     @Override
     public ProductService getProductService() {

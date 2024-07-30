@@ -2,13 +2,10 @@ package com.example.mycart.service;
 
 import com.example.mycart.model.Review;
 import com.example.mycart.payloads.ReviewDTO;
-import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.ReviewRepository;
 import com.example.mycart.repository.SoftDeletesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +14,11 @@ import java.util.List;
 @Service
 public class ReviewServiceImpl extends AbstractGenericService<Review, ReviewDTO, Long> implements ReviewService
 {
-    @Autowired
-    private ReviewRepository repository;
+    private final ReviewRepository repository;
+
+    public ReviewServiceImpl(ReviewRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public Page<Review> getReviewsByProductId(Long productId,int pageNo)

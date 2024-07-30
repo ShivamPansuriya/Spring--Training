@@ -8,7 +8,6 @@ import com.example.mycart.payloads.ReviewDTO;
 import com.example.mycart.service.ReviewService;
 import com.example.mycart.service.GenericService;
 import com.example.mycart.utils.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,20 +15,24 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.mycart.constants.Constants.ID;
 import static com.example.mycart.constants.Constants.REVIEW_LIMIT;
 
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController extends AbstractGenericController<Review,ReviewDTO,Long>
 {
-    @Autowired
-    private ReviewService service;
+    private final ReviewService service;
 
-    @Autowired
-    private ReviewMapper<Review,ReviewDTO> mapper;
+    private final ReviewMapper<Review,ReviewDTO> mapper;
 
-    @Autowired
-    private Validator validator;
+    private final Validator validator;
+
+    public ReviewController(ReviewService service, ReviewMapper<Review, ReviewDTO> mapper, Validator validator) {
+        this.service = service;
+        this.mapper = mapper;
+        this.validator = validator;
+    }
 
     @GetMapping("/product/{productId}")
     public ResponseEntity<Page<ReviewDTO>> getReviewsByProductId(@PathVariable Long productId,
@@ -37,7 +40,7 @@ public class ReviewController extends AbstractGenericController<Review,ReviewDTO
     {
         if(validator.validateProduct(productId))
         {
-            throw new ResourceNotFoundException("Product","id",productId);
+            throw new ResourceNotFoundException("Product",ID,productId);
         }
 
         var reviews = service.getReviewsByProductId(productId,pageNo);

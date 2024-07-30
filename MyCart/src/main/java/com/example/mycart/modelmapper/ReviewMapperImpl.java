@@ -1,24 +1,22 @@
 package com.example.mycart.modelmapper;
 
-import com.example.mycart.model.Product;
 import com.example.mycart.model.Review;
-import com.example.mycart.payloads.ProductDTO;
 import com.example.mycart.payloads.ReviewDTO;
-import com.example.mycart.service.CategoryService;
 import com.example.mycart.service.ProductService;
 import com.example.mycart.service.UserService;
-import com.example.mycart.service.VendorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ReviewMapperImpl extends ReviewMapper<Review, ReviewDTO>
 {
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public ReviewMapperImpl(ProductService productService, UserService userService) {
+        this.productService = productService;
+        this.userService = userService;
+    }
 
     @Override
     protected ProductService getProductService() {

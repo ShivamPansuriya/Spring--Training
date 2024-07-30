@@ -1,14 +1,9 @@
 package com.example.mycart.service;
 
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Inventory;
 import com.example.mycart.payloads.InventoryDTO;
-import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.InventoryRepository;
-import com.example.mycart.repository.ProductRepository;
 import com.example.mycart.repository.SoftDeletesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +13,11 @@ import java.util.List;
 @Service
 public class InventoryServiceImpl extends AbstractGenericService<Inventory, InventoryDTO, Long> implements InventoryService
 {
-    @Autowired
-    private InventoryRepository inventoryRepository;
+    private final InventoryRepository inventoryRepository;
+
+    public InventoryServiceImpl(InventoryRepository inventoryRepository) {
+        this.inventoryRepository = inventoryRepository;
+    }
 
     @Override
     public List<Inventory> findLowStockInventories(int threshold, Long vendorId)

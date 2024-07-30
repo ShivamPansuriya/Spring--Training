@@ -10,33 +10,37 @@ import com.example.mycart.service.GenericService;
 import com.example.mycart.utils.Validator;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.mycart.constants.Constants.*;
+
 @RestController
 @RequestMapping("/api/inventories")
 public class InventoryController extends AbstractGenericController<Inventory,InventoryDTO,Long>
 {
 
-    @Autowired
-    private InventoryService service;
+    private final InventoryService service;
 
-    @Autowired
-    private InventoryMapper<Inventory,InventoryDTO> mapper;
+    private final InventoryMapper<Inventory,InventoryDTO> mapper;
 
-    @Autowired
-    private Validator validator;
+    private final Validator validator;
+
+    public InventoryController(InventoryService service, InventoryMapper<Inventory, InventoryDTO> mapper, Validator validator) {
+        this.service = service;
+        this.mapper = mapper;
+        this.validator = validator;
+    }
 
     @GetMapping("/products/{productId}")
     public ResponseEntity<InventoryDTO> getInventoryByProduct(@PathVariable Long productId)
     {
         if(validator.validateProduct(productId))
         {
-            throw new ResourceNotFoundException("Product","id",productId);
+            throw new ResourceNotFoundException(PRODUCT,ID,productId);
         }
         var inventory = service.getInventoryByProduct(productId);
         return new ResponseEntity<>(mapper.toDTO(inventory,0), HttpStatus.OK);
@@ -47,7 +51,7 @@ public class InventoryController extends AbstractGenericController<Inventory,Inv
     {
         if(validator.validateVendor(vendorId))
         {
-            throw new ResourceNotFoundException("Vendor","id",vendorId);
+            throw new ResourceNotFoundException(VENDOR,ID,vendorId);
         }
         var inventories = service.findLowStockInventories(threshold, vendorId);
 
@@ -59,7 +63,7 @@ public class InventoryController extends AbstractGenericController<Inventory,Inv
     {
         if(validator.validateProduct(productId))
         {
-            throw new ResourceNotFoundException("Product","id",productId);
+            throw new ResourceNotFoundException(PRODUCT,ID,productId);
         }
         var createdInventory = service.createInventory(mapper.toEntity(inventory), productId);
 

@@ -1,20 +1,19 @@
 package com.example.mycart.service;
 
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.User;
 import com.example.mycart.payloads.UserDTO;
-import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.SoftDeletesRepository;
 import com.example.mycart.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends AbstractGenericService<User, UserDTO, Long>implements UserService
 {
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+
+    public UserServiceImpl(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public User getUserByName(String name)

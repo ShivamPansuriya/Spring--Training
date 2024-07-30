@@ -1,27 +1,18 @@
 package com.example.mycart.repository;
 
 import com.example.mycart.model.BaseEntity;
-import com.example.mycart.service.GenericService;
-import com.example.mycart.utils.GenericSpecification;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
-import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -60,7 +51,7 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity<Long>, ID> extends B
 
     @Override
     public Page<T> findAll(Pageable pageable) {
-        return (Page)(pageable.isUnpaged() ? new PageImpl(this.findAll()) : this.findAll(notDeleted(), (Pageable)pageable));
+        return (pageable.isUnpaged() ? new PageImpl(this.findAll()) : this.findAll(notDeleted(), pageable));
     }
 
     @Override
@@ -75,13 +66,14 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity<Long>, ID> extends B
         softDelete(entity, true);
     }
 
+    @Override
     @Transactional
     public void deleteAll(Iterable<? extends T> entities)
     {
         Assert.notNull(entities, "Entities must not be null");
 
         for (T entity : entities) {
-            this.delete(entity);
+            softDelete(entity,true);
         }
 
     }

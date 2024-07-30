@@ -10,7 +10,6 @@ import com.example.mycart.service.ProductService;
 import com.example.mycart.service.GenericService;
 import com.example.mycart.utils.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +23,16 @@ import java.math.BigDecimal;
 public class ProductController extends AbstractGenericController<Product,ProductDTO,Long>
 {
 
-    @Autowired
-    private ProductService service;
-    @Autowired
-    private ProductMapper<Product,ProductDTO> mapper;
+    private final ProductService service;
+    private final ProductMapper<Product,ProductDTO> mapper;
 
-    @Autowired
-    private Validator validator;
+    private final Validator validator;
+
+    public ProductController(ProductService service, ProductMapper<Product, ProductDTO> mapper, Validator validator) {
+        this.service = service;
+        this.mapper = mapper;
+        this.validator = validator;
+    }
 
     @PostMapping("/categories/{categoryId}/vendors/{vendorId}")
     public ResponseEntity<ProductDTO> createProduct(@PathVariable Long categoryId, @PathVariable Long vendorId,@RequestBody ProductDTO productDTO)

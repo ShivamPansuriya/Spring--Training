@@ -7,7 +7,6 @@ import com.example.mycart.service.OrderService;
 import com.example.mycart.modelmapper.EntityMapper;
 import com.example.mycart.utils.OrderStatus;
 import com.example.mycart.utils.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -17,25 +16,31 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.example.mycart.constants.Constants.ID;
+import static com.example.mycart.constants.Constants.ORDER;
+
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController
 {
-    @Autowired
-    private OrderService service;
+    private final OrderService service;
 
-    @Autowired
-    private EntityMapper<Order,OrderDTO> orderMapper;
+    private final EntityMapper<Order,OrderDTO> orderMapper;
 
-    @Autowired
-    private Validator validator;
+    private final Validator validator;
+
+    public OrderController(OrderService service, EntityMapper<Order, OrderDTO> orderMapper, Validator validator) {
+        this.service = service;
+        this.orderMapper = orderMapper;
+        this.validator = validator;
+    }
 
     @PostMapping("/user/{userId}")
     public ResponseEntity<OrderDTO> createOrder(@PathVariable Long userId)
     {
         if(validator.validateUser(userId))
         {
-            throw new ResourceNotFoundException("User","id",userId);
+            throw new ResourceNotFoundException("User",ID,userId);
         }
 
         var order = service.create(userId);
@@ -50,7 +55,7 @@ public class OrderController
 
         if(order==null)
         {
-            throw new ResourceNotFoundException("Order","id",orderId);
+            throw new ResourceNotFoundException(ORDER,ID,orderId);
         }
         return new ResponseEntity<>(orderMapper.toDTO(order,0),HttpStatus.OK);
     }
@@ -60,7 +65,7 @@ public class OrderController
     {
         if(validator.validateUser(userId))
         {
-            throw new ResourceNotFoundException("User","id",userId);
+            throw new ResourceNotFoundException("User",ID,userId);
         }
 
         var orders = service.getOrdersByUser(userId, pageNo);
@@ -75,7 +80,7 @@ public class OrderController
     {
         if(validator.validateOrder(orderId))
         {
-            throw new ResourceNotFoundException("Order","id",orderId);
+            throw new ResourceNotFoundException(ORDER,ID,orderId);
         }
 
         var updatedOrder = service.updateOrderStatus(orderId, value);
@@ -88,7 +93,7 @@ public class OrderController
     {
         if(validator.validateOrder(orderId))
         {
-            throw new ResourceNotFoundException("Order","id",orderId);
+            throw new ResourceNotFoundException(ORDER,ID,orderId);
         }
 
         var cancelledOrder = service.cancelOrder(orderId);
@@ -101,7 +106,7 @@ public class OrderController
     {
         if(validator.validateOrder(orderId) && validator.validateProduct(productId))
         {
-            throw new ResourceNotFoundException("Order OR product","id",orderId);
+            throw new ResourceNotFoundException("Order OR product",ID,orderId);
         }
         var cancelledOrder = service.removeOrderItem(orderId,productId);
 

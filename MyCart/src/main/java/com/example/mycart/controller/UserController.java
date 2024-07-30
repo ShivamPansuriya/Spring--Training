@@ -7,7 +7,6 @@ import com.example.mycart.modelmapper.UserMapper;
 import com.example.mycart.payloads.UserDTO;
 import com.example.mycart.service.UserService;
 import com.example.mycart.service.GenericService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController extends AbstractGenericController<User,UserDTO,Long>
 {
-    @Autowired
-    private UserService service;
+    private final UserService service;
 
-    @Autowired
-    private UserMapper<User,UserDTO> mapper;
+    private final UserMapper<User,UserDTO> mapper;
+
+    public UserController(UserService service, UserMapper<User, UserDTO> mapper) {
+        this.service = service;
+        this.mapper = mapper;
+    }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<UserDTO> getUserByName(@PathVariable String name)

@@ -3,15 +3,17 @@ package com.example.mycart.modelmapper;
 import com.example.mycart.model.Vendor;
 import com.example.mycart.payloads.VendorDTO;
 import com.example.mycart.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class VendorMapperImpl extends VendorMapper<Vendor,VendorDTO>
 {
-    @Autowired
-    private ProductService service;
+    private final ProductService service;
+
+    public VendorMapperImpl(ProductService service) {
+        this.service = service;
+    }
 
     @Override
     protected ProductService getProductService() {

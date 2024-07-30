@@ -1,12 +1,10 @@
 package com.example.mycart.service;
 
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.Cart;
 import com.example.mycart.model.CartItem;
 import com.example.mycart.repository.CartItemRepository;
 import com.example.mycart.repository.CartRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -20,11 +18,14 @@ import java.util.List;
 public class CartServiceImpl implements CartService
 {
 
-    @Autowired
-    private CartRepository cartRepository;
+    private final CartRepository cartRepository;
 
-    @Autowired
-    private CartItemRepository cartItemRepository;
+    private final CartItemRepository cartItemRepository;
+
+    public CartServiceImpl(CartRepository cartRepository, CartItemRepository cartItemRepository) {
+        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartItemRepository;
+    }
 
     @Override
     public Cart findCartByUser(Long userId)
@@ -92,11 +93,14 @@ public class CartServiceImpl implements CartService
     @CacheEvict
     public CartItem removeItemFromCart(Long userId,Long cartItemId)
     {
-        var cartItem = cartItemRepository.findById(cartItemId).get();
+        var cartItem = cartItemRepository.findById(cartItemId);
 
-        cartItemRepository.delete(cartItem);
+        if(cartItem.isPresent()) {
+            cartItemRepository.delete(cartItem.get());
 
-        return cartItem;
+            return cartItem.get();
+        }
+        return new CartItem();
     }
 
     @Override

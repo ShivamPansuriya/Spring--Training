@@ -19,10 +19,6 @@ public abstract class ProductMapper<T extends NamedEntity,D extends NamedDTO> im
     @Mapping(target = "vendorName", expression = "java(getVendorName(entity.getVendorId()))")
     public abstract D toDTO(T entity, int pageNo);
 
-    @Override
-    public abstract T toEntity(D entity);
-
-
     protected String  getCategoryName(Long categoryId)
     {
         return getCategoryService().findById(categoryId).getName();

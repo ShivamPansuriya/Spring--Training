@@ -3,15 +3,17 @@ package com.example.mycart.modelmapper;
 import com.example.mycart.model.OrderItems;
 import com.example.mycart.payloads.OrderItemDTO;
 import com.example.mycart.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrderItemMapperImpl extends OrderItemMapper<OrderItems, OrderItemDTO>
 {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+
+    public OrderItemMapperImpl(ProductService productService) {
+        this.productService = productService;
+    }
 
     @Override
     protected ProductService getProductService() {

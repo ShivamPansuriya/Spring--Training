@@ -34,22 +34,25 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class OrderServiceImpl extends AbstractGenericService<Order,OrderDTO, Long> implements OrderService
 {
-    @Autowired
-    private OrderRepository repository;
+    private final OrderRepository repository;
 
-    @Autowired
-    private OrderItemsRepository orderItemsRepository;
+    private final OrderItemsRepository orderItemsRepository;
 
-    @Autowired
-    private CartService cartService;
+    private final CartService cartService;
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
-    private InventoryService inventoryService;
+    private final InventoryService inventoryService;
 
     private final ReentrantLock orderCreationLock = new ReentrantLock(true);
+
+    public OrderServiceImpl(OrderRepository repository, OrderItemsRepository orderItemsRepository, CartService cartService, ProductService productService, InventoryService inventoryService) {
+        this.repository = repository;
+        this.orderItemsRepository = orderItemsRepository;
+        this.cartService = cartService;
+        this.productService = productService;
+        this.inventoryService = inventoryService;
+    }
 
     @Override
     @Transactional

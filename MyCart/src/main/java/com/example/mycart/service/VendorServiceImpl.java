@@ -3,7 +3,6 @@ package com.example.mycart.service;
 import com.example.mycart.exception.ApiException;
 import com.example.mycart.model.Vendor;
 import com.example.mycart.payloads.VendorDTO;
-import com.example.mycart.repository.BaseRepository;
 import com.example.mycart.repository.SoftDeletesRepository;
 import com.example.mycart.repository.VendorRepository;
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,8 +12,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -26,8 +23,12 @@ public class VendorServiceImpl extends AbstractGenericService<Vendor, VendorDTO,
 
     private static final Logger log = LoggerFactory.getLogger(VendorServiceImpl.class);
 
-    @Autowired
+    final
     VendorRepository repository;
+
+    public VendorServiceImpl(VendorRepository repository) {
+        this.repository = repository;
+    }
 
     public byte[] generateAnalysis(Long vendorId)
     {

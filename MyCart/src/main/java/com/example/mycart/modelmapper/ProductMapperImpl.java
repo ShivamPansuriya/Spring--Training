@@ -7,23 +7,25 @@ import com.example.mycart.payloads.ReviewDTO;
 import com.example.mycart.service.CategoryService;
 import com.example.mycart.service.ReviewService;
 import com.example.mycart.service.VendorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProductMapperImpl extends ProductMapper<Product,ProductDTO>
 {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
-    @Autowired
-    private VendorService vendorService;
+    private final VendorService vendorService;
 
-    @Autowired
-    private ReviewService reviewService;
+    private final ReviewService reviewService;
 
-    @Autowired
-    private ReviewMapper<Review, ReviewDTO> reviewMapper;
+    private final ReviewMapper<Review, ReviewDTO> reviewMapper;
+
+    public ProductMapperImpl(CategoryService categoryService, VendorService vendorService, ReviewService reviewService, ReviewMapper<Review, ReviewDTO> reviewMapper) {
+        this.categoryService = categoryService;
+        this.vendorService = vendorService;
+        this.reviewService = reviewService;
+        this.reviewMapper = reviewMapper;
+    }
 
     @Override
     protected CategoryService getCategoryService() {

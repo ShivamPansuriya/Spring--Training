@@ -6,8 +6,6 @@ import com.example.mycart.service.ProductService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 
 @Mapper(componentModel = "spring")

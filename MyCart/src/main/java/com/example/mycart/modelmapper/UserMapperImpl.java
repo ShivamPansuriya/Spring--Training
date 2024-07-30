@@ -6,21 +6,23 @@ import com.example.mycart.payloads.ReviewDTO;
 import com.example.mycart.payloads.UserDTO;
 import com.example.mycart.service.OrderService;
 import com.example.mycart.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapperImpl extends UserMapper<User, UserDTO>
 {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
-    @Autowired
-    private ReviewService reviewService;
+    private final ReviewService reviewService;
 
-    @Autowired
-    private ReviewMapper<Review, ReviewDTO> reviewMapper;
+    private final ReviewMapper<Review, ReviewDTO> reviewMapper;
+
+    public UserMapperImpl(OrderService orderService, ReviewService reviewService, ReviewMapper<Review, ReviewDTO> reviewMapper) {
+        this.orderService = orderService;
+        this.reviewService = reviewService;
+        this.reviewMapper = reviewMapper;
+    }
 
     @Override
     protected OrderService getOrderService() {

@@ -5,17 +5,19 @@ import com.example.mycart.model.CartItem;
 import com.example.mycart.payloads.CartDTO;
 import com.example.mycart.payloads.CartItemDTO;
 import com.example.mycart.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CartMapperImpl extends CartMapper<Cart,CartDTO>
 {
-    @Autowired
-    CartItemMapper<CartItem,CartItemDTO> cartItemMapper;
+    final CartItemMapper<CartItem,CartItemDTO> cartItemMapper;
 
-    @Autowired
-    CartService service;
+    final CartService service;
+
+    public CartMapperImpl(CartItemMapper<CartItem, CartItemDTO> cartItemMapper, CartService service) {
+        this.cartItemMapper = cartItemMapper;
+        this.service = service;
+    }
 
     @Override
     public CartDTO toDTO(Cart entity, int pageNo) {

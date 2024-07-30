@@ -12,8 +12,4 @@ public interface CartItemRepository extends SoftDeletesRepository<CartItem,Long>
 {
     Optional<CartItem> findByCartIdAndProductIdAndDeleted(Long cartId, Long productId, boolean isDeleted);
     List<CartItem> findCartItemsByCartIdAndDeleted(Long id,boolean isDeleted);
-    default void deleteCartItemsByCartId(Long cartId)
-    {
-
-    }
 }

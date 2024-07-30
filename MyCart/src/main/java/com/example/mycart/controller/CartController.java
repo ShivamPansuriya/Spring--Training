@@ -10,7 +10,6 @@ import com.example.mycart.payloads.CartItemDTO;
 import com.example.mycart.service.CartService;
 import com.example.mycart.utils.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,17 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class CartController
 {
-    @Autowired
-    private CartService service;
+    private final CartService service;
 
-    @Autowired
-    private CartMapper<Cart,CartDTO> cartMapper;
+    private final CartMapper<Cart,CartDTO> cartMapper;
 
-    @Autowired
-    private CartItemMapper<CartItem,CartItemDTO> cartItemMapper;
+    private final CartItemMapper<CartItem,CartItemDTO> cartItemMapper;
 
-    @Autowired
-    private Validator validator;
+    private final Validator validator;
+
+    public CartController(CartService service, CartMapper<Cart, CartDTO> cartMapper, CartItemMapper<CartItem, CartItemDTO> cartItemMapper, Validator validator) {
+        this.service = service;
+        this.cartMapper = cartMapper;
+        this.cartItemMapper = cartItemMapper;
+        this.validator = validator;
+    }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<CartDTO> getCart(@PathVariable Long userId)

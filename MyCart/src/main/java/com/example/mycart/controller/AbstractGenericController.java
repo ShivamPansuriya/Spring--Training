@@ -1,7 +1,6 @@
 package com.example.mycart.controller;
 
 import com.example.mycart.exception.ApiException;
-import com.example.mycart.exception.ResourceNotFoundException;
 import com.example.mycart.model.BaseEntity;
 import com.example.mycart.payloads.BaseDTO;
 import com.example.mycart.service.GenericService;
